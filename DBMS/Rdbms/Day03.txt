@@ -1,0 +1,366 @@
+*****************************************************
+Practical Session for Categories of commands in SQL
+---------------------
+a) DDL (Data Definition Language) [changes made would be permanent]
+CREATE, DROP, ALTER, RENAME,TRUNCATE
+
+b) DML (Data Manipulation Language)[changes made would be Temporary]
+INSERT,UPDATE,DELETE
+
+c) TCL ( Transaction Control Language) [Always works on DML's]
+COMMIT ROLLBACK SAVEPOINT
+
+d) DCL ( Data Control Language) [useful across users when you need to give/takeback permissions	]
+GRANT REVOKE 
+
+e) DQL ( Data Query Language)
+SELECT
+
+************************************************************************************
+Hands on trials for DDL,DML,TCL,DQL:
+a) Create tables --> drop , alter , rename , truncate 
+b) Insert data to the table 
+c) Delete the data from the table 
+d) Update some data from the table 
+e) Select
+************************************************************************************
+
+------------------------------------------------------------
+Exercise Question 1 :
+--------------------------------------------------------
+a) Create table named lms_members(MEMBER_ID	MEMBER_NAME	CITY	DATE_REGISTER	DATE_EXPIRE	MEMBERSHIP_STATUS)
+b) Drop table 
+c) create the table back again
+d) Alter the table 
+  i) add two more columns ADDRESS	CONTACT
+  ii) Modify the datatype of existing Address column to be varchar2(3999)
+  iii) rename the address column name to member_address
+  iv) drop the contact column
+   v) rename the table to lms_members_practice
+  
+ 
+e) Insert following data -- use to_date('12-12-2012','dd-mm-yyyy') to store the hardcoded date
+ 
+LM009	Nikita	Delhi	12-12-2012	12-12-2021	Temporary	rajori road 
+LM020	Supriya	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar
+LM024	Gaurav	Delhi	12-06-2018	12-05-2020	Temporary	nawada
+f) delete all the rows
+g) insert the data back again in point (e) 
+h) update for all rows Address column to Karnataka
+
+Reference : https://www.oracletutorial.com/oracle-basics/oracle-date-format/
+
+f)  TCL  -- please set your expectations by filling in ? in [? rows] before executing your code 
+   <case 1>  -- rollback
+	fire select to see current data in the table [? rows]
+	insert : LM011	Gaurav	Delhi	12-12-2012	12-12-2021	Temporary	rajori road
+	fire select to see current data in the table [? rows]
+	rollback;
+	fire select to see current data in the table [? rows]
+
+   <case 2> -- commit
+	fire select to see current data in the table [? rows]
+	insert : LM012	Gauri	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar
+	fire select to see current data in the table [? rows]
+	commit;
+	fire select to see current data in the table [? rows]
+
+   <case 3> -- rollback to savepoint 
+	fire select to see current data in the table [? rows]
+	create a savepoint named s1
+	insert : LM013	Pratik	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar
+	create a savepoint named s2
+	insert : LM014	Deepak	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar
+	fire select to see current data in the table [? rows]
+	rollback to savepoint s2;
+	fire select to see current data in the table [? rows]
+ 
+-------------------------------
+Exercise Question 1 Solution :
+-------------------------------
+
+create table lms_members
+(
+MEMBER_ID varchar2(100),	
+MEMBER_NAME varchar2(100),
+CITY	varchar2(100),
+DATE_REGISTER date,
+DATE_EXPIRE	date,
+MEMBERSHIP_STATUS varchar2(100)
+);
+describe lms_members;
+drop table lms_members;
+
+alter table lms_members add (ADDRESS varchar2(100),	CONTACT number);
+alter table lms_members modify (address varchar2(3999));
+alter table lms_members drop (	CONTACT ); 
+alter table lms_members rename column ADDRESS to member_ddress;
+rename lms_members to lms_members_practice;
+describe lms_members_practice;
+
+insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM009','Nikita','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','rajori road');
+insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM020','Supriya','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','uttam nagar');
+insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM024','Gaurav','Delhi',to_date('12-06-2018','dd-mm-yyyy'),to_date('12-05-2020','dd-mm-yyyy'),'Temporary','nawada');
+
+alter session set nls_date_format = 'dd-mon-yyyy hh24:mi:ss';
+select * from lms_members_practice;
+delete from lms_members_practice;
+update lms_members_practice set city = 'Karnataka' ;
+
+
+	--fire select to see current data in the table [3 rows]
+	select * from lms_members_practice;
+	-- insert : LM011	Gaurav	Delhi	12-12-2012	12-12-2021	Temporary	rajori road
+	insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM011','Gaurav','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','rajori road');
+	--fire select to see current data in the table [4 rows]
+	select * from lms_members_practice;
+	rollback;
+	--fire select to see current data in the table [3 rows]
+	select * from lms_members_practice;
+
+
+
+	--fire select to see current data in the table [3 rows]
+	select * from lms_members_practice;
+	-- insert : LM012	Gauri	Delhi	12-12-2012	12-12-2021	Temporary	rajori road
+	insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM012','Gauri','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','rajori road');
+	--fire select to see current data in the table [4 rows]
+	select * from lms_members_practice;
+	commit;
+	--fire select to see current data in the table [4 rows]
+	select * from lms_members_practice;
+
+
+
+	/*fire select to see current data in the table [4 rows]*/
+	select * from lms_members_practice;
+	/*create a savepoint named s1*/
+	exec savepoint s1 ;
+	/* insert : LM013	Pratik	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar*/
+	insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM013','Pratik','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','rajori road');
+    /*create a savepoint named s2*/
+	exec savepoint s2 ;
+	/*insert : LM014	Deepak	Delhi	12-12-2012	12-12-2021	Temporary	uttam nagar*/
+	insert into lms_members_practice(MEMBER_ID,MEMBER_NAME,CITY,DATE_REGISTER,DATE_EXPIRE,MEMBERSHIP_STATUS,member_address) values ('LM014','Deepak','Delhi',to_date('12-12-2012','dd-mm-yyyy'),to_date('12-12-2021','dd-mm-yyyy'),'Temporary','rajori road');
+	/*fire select to see current data in the table [6 rows]*/
+	select * from lms_members_practice;
+	rollback to savepoint s2;
+	/*fire select to see current data in the table [5 rows]*/
+	select * from lms_members_practice;
+
+-------------------------------------------------------
+Exercise Question 2 :
+--------------------------------------------------------
+a) Create table named lms_suppliers_details(SUPPLIER_ID varchar2,SUPPLIER_NAME varchar2,ADDRESS	varchar2, CONTACT number,EMAIL varchar2)
+b) Drop table 
+c) create the table back again
+d) Alter the table 
+  i) add two more columns BLOOD_GROUP VARCHAR2	COUNTRY VARCHAR2
+  ii) rename the COUNTRY column name to member_COUNTRY
+  iii) Modify the BLOOD_GROUP to varchar2(3008)    
+  iv) drop the BLOOD_GROUP column
+  v) rename the table to lms_suppliers_details_p
+
+ 
+e) Insert following data 
+S01	SINGAPORE SHOPPEE	CHENNAI	9894123555	sing@gmail.com  India
+S02	JK Stores	MUMBAI	9940123450	jks@yahoo.com India
+S03	ROSE BOOK STORE	TRIVANDRUM	9444411222	rose@gmail.com India
+S04	KAVARI STORE	DELHI	8630001452	kavi@redif.com India
+
+f) delete all the rows
+g) insert the data back again in point (e) 
+h) update for all rows country column to 'USA'
+
+
+
+f)  TCL  -- please set your expectations by filling in ? in [? rows] before executing your code 
+   <case 1>  -- rollback
+	fire select to see current data in the table [? rows]
+	insert : S12	ZOMATO	MUMBAI	7855623440	money@gmail.com India
+	fire select to see current data in the table [? rows]
+	rollback;
+	fire select to see current data in the table [? rows]
+
+   <case 2> -- commit
+	fire select to see current data in the table [? rows]
+	insert : S10	JIO MART	DELHI	8644001452	free@rediff.com India
+	fire select to see current data in the table [? rows]
+	commit;
+	fire select to see current data in the table [? rows]
+
+   <case 3> -- rollback to savepoint 
+	fire select to see current data in the table [? rows]
+	create a savepoint named s1
+	insert : S08	D MART	MUMBAI	9940123450	dance@gmail.com India
+	create a savepoint named s2
+	insert : S06	AKBAR STORE	MUMBAI	7855623100	akbakst@aol.com India
+	fire select to see current data in the table [? rows]
+	rollback to savepoint s2;
+	fire select to see current data in the table [? rows]
+ 
+
+-------------------------------------------------------
+Exercise Question 3 :
+--------------------------------------------------------
+a) Create table named lms_book_details(BOOK_CODE varchar2,BOOK_TITLE varchar2,CATEGORY varchar2,AUTHOR varchar2,PUBLICATION varchar2,	PUBLISH_DATE date, BOOK_EDITION	number, PRICE number,RACK_NUM varchar2,	DATE_ARRIVAL date,	SUPPLIER_ID varchar2)
+b) Drop table 
+c) create the table back again
+Create table named lms_book_details(BOOK_CODE varchar2,BOOK_TITLE varchar2,CATEGORY varchar2,AUTHOR varchar2,PUBLICATION varchar2,	PUBLISH_DATE date, BOOK_EDITION	number, PRICE number,RACK_NUM varchar2,	DATE_ARRIVAL date,	SUPPLIER_ID varchar2)
+d) Alter the table 
+  i) add two more columns ISBN VARCHAR2	CURRENCY VARCHAR2
+  ii) rename the CURRENCY column name to BOOK_CURRENCY
+  iii) drop the ISBN column
+  iv) rename the table to lms_book_details_p
+  
+e) Insert following data 
+BL000001	Java How To Do Program			JAVA	Paul J. Deitel	Prentice Hall		10-12-1999	6	600	A1	10-05-2011	S01
+BL000002	Java: The Complete Reference	JAVA	Herbert Schildt	Tata Mcgraw Hill	10-10-2011	5	750	A1	10-05-2011	S03
+
+
+f) delete all the rows
+g) insert the data back again in point (e) 
+h) update for all rows CATEGORY column to 'JUNK'
+f)  TCL  -- please set your expectations by filling in ? in [? rows] before executing your code 
+   <case 1>  -- rollback
+	fire select to see current data in the table [? rows]
+	insert : BL000003	Java How To Do Program	JAVA	Paul J. Deitel	Prentice Hall	10-05-1999	6	600	A1	10-05-2012	S01
+	fire select to see current data in the table [? rows]
+	rollback;
+	fire select to see current data in the table [? rows]
+
+   <case 2> -- commit
+	fire select to see current data in the table [? rows]
+	insert : BL000003	Java How To Do Program	JAVA	Paul J. Deitel	Prentice Hall	10-05-1999	6	600	A1	10-05-2012	S01
+	fire select to see current data in the table [? rows]
+	commit;
+	fire select to see current data in the table [? rows]
+
+   <case 3> -- rollback to savepoint 
+	fire select to see current data in the table [? rows]
+	create a savepoint named s1
+	insert : BL000004	Java: The Complete Reference	JAVA	Herbert Schildt	Tata Mcgraw Hill	10-10-2011	5	750	A1	11-05-2012	S01
+	create a savepoint named s2
+	insert : BL000005	Java How To Do Program	JAVA	Paul J. Deitel	Prentice Hall	10-12-1999	6	600	A1	11-05-2012	S01
+	fire select to see current data in the table [? rows]
+	rollback to savepoint s2;
+	fire select to see current data in the table [? rows]
+ 
+ 
+ -------------------------------------------------------
+Exercise Question 4 :
+--------------------------------------------------------
+a) Create table named lms_book_issue(BOOK_ISSUE_NO number,MEMBER_ID varchar2,BOOK_CODE varchar2,	DATE_ISSUE date,DATE_RETURN date,DATE_RETURNED date,FINE_RANGE varchar2)
+
+b) Drop table 
+
+c) create the table back again
+ Create table named lms_book_issue(BOOK_ISSUE_NO number,MEMBER_ID varchar2,BOOK_CODE varchar2,	DATE_ISSUE date,DATE_RETURN date,DATE_RETURNED date,FINE_RANGE varchar2)
+
+d) Alter the table 
+  i) add two more columns Vendor_code VARCHAR2	place VARCHAR2
+  ii) rename the place column name to vendor_place
+  iii) drop the Vendor_code column
+  iv) rename the table to lms_suppliers_details_p
+e) Insert following data 
+6	LM003	BL000007	22-04-2012	07-05-2012	25-05-2012	R4
+12	LM003	BL000001	22-04-2013	07-05-2013	25-05-2013	R4
+
+
+f) delete all the rows
+g) insert the data back again in point (e) 
+h) update for all rows book_code column to 'B0000001111'
+f)  TCL  -- please set your expectations by filling in ? in [? rows] before executing your code 
+   <case 1>  -- rollback
+	fire select to see current data in the table [? rows]
+	insert : 18	LM003	BL000007	07-05-2012	22-05-2012	11-06-2012	R4
+	fire select to see current data in the table [? rows]
+	rollback;
+	fire select to see current data in the table [? rows]
+
+   <case 2> -- commit
+	fire select to see current data in the table [? rows]
+	insert : 18	LM003	BL000007	07-05-2012	22-05-2012	11-06-2012	R4
+	fire select to see current data in the table [? rows]
+	commit;
+	fire select to see current data in the table [? rows]
+
+   <case 3> -- rollback to savepoint 
+	fire select to see current data in the table [? rows]
+	create a savepoint named s1
+	insert : 24	LM003	BL000001	07-05-2013	22-05-2013	11-06-2013	R4
+	create a savepoint named s2
+	insert : 18	LM003	BL000007	07-05-2012	22-05-2012	11-06-2012	R4
+	fire select to see current data in the table [? rows]
+	rollback to savepoint s2;
+	fire select to see current data in the table [? rows]
+
+-------------------------------------------------------------
+-------------------------------------------------------------
+ 
+What is Integrity constraint and their types 
+demo on Integrity constraint
+hands on 
+assignment 
+-------------------------
+LMS : explore the dataset 
+select --> full fledged 
+demo 
+hands on 
+
+-------------------------------------
+Integrity constraints :
+-------------------------------------
+a) primary key : not null + duplicate values not allowed -- we use primary keys 
+b) Not null constraints : cannot have null  values -- use not null keyword 
+c) Referential integrity : that the refered column should have a valid value -- foreign keys 
+d) check constraint : checks for specified custom condition provided by user 
+e) unique :  duplicate values not allowed  -- use unique keyword
+
+
+------------------------------
+demo on Integrity constraint
+------------------------------
+-- create the table 
+CREATE TABLE MY_FIRST_TABLE
+(
+NAME VARCHAR2(100),
+ROLLNO NUMBER ,
+DATE_OF_ENROLLMENT DATE
+);
+
+desc MY_FIRST_TABLE;
+
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO) values (null);
+
+-- a) primary key rollno (Unique + not null )
+
+drop TABLE MY_FIRST_TABLE;
+
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER,
+NAME VARCHAR2(100),
+DATE_OF_ENROLLMENT DATE,
+constraint cons1 primary key(rollno)
+);
+
+desc MY_FIRST_TABLE;
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO) values (null);
+
+select * from user_constraints ;
+-- DROPPING THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE drop constraint cons1;
+
+-- adding THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE add constraint cons1 primary key(rollno);

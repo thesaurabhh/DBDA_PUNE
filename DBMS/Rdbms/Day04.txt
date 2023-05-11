@@ -1,0 +1,629 @@
+------------------------------
+demo on Integrity constraint
+------------------------------
+-- create the table 
+CREATE TABLE MY_FIRST_TABLE
+(
+NAME VARCHAR2(100),
+ROLLNO NUMBER ,
+DATE_OF_ENROLLMENT DATE
+);
+
+desc MY_FIRST_TABLE;
+
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO) values (null);
+
+-- a) primary key rollno (Unique + not null )
+
+drop TABLE MY_FIRST_TABLE;
+
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER,
+NAME VARCHAR2(100),
+DATE_OF_ENROLLMENT DATE,
+constraint cons1 primary key(rollno)
+);
+
+desc MY_FIRST_TABLE;
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO) values (1);
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO) values (null);
+
+select * from user_constraints ;
+-- DROPPING THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE drop constraint cons1;
+
+-- adding THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE add constraint cons1 primary key(rollno);
+
+
+-- a) Unique key NAME (Unique)
+drop TABLE MY_FIRST_TABLE;
+
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER,
+NAME VARCHAR2(100),
+DATE_OF_ENROLLMENT DATE,
+constraint cons1 primary key(rollno),
+constraint cons2 unique(NAME)
+);
+
+select  * FrOM USER_constraints where table_name = 'MY_FIRST_TABLE' ;
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO,NAME) values (1,'gaurav');
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO,NAME) values (2,'gaurav');
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO,NAME) values (3,null);
+insert into MY_FIRST_TABLE(ROLLNO,NAME) values (4,null);
+
+-- DROPPING THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE drop constraint cons2;
+
+-- adding THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE add constraint cons2 unique(NAME);
+
+--- what if the column has non-unique values and we need to apply a unique constraint over that column
+drop table test_unique;
+create table test_unique ( city varchar2(10));
+insert into test_unique(city) values ( 'Pune');
+insert into test_unique(city) values ( 'Pune');
+
+select * from test_unique;
+alter table test_unique add constraint cons33 unique(city);
+
+-- some way to make sure the data is unique 
+update test_unique
+set city = 'Delhi'
+where rowid = (select rowid from test_unique where rownum =1 )
+
+-- a) Not null  DATE_OF_ENROLLMENT (not null )
+drop TABLE MY_FIRST_TABLE;
+
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER,
+NAME VARCHAR2(100) ,
+DATE_OF_ENROLLMENT date constraint cons3 not null ,
+constraint cons1 primary key(rollno),
+constraint cons2 unique(name)
+);
+
+select  * FrOM USER_constraints where table_name = 'MY_FIRST_TABLE' ;
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT) values (1,'gaurav',to_date('01-01-2001','dd-mm-yyyy'));
+-- duplicate insert
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT) values (2,'pratik',to_date('01-01-2001','dd-mm-yyyy'));
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT) values (3,'sagar',null);
+
+-- trying to update a null value in a not null column 
+update MY_FIRST_TABLE set DATE_OF_ENROLLMENT = null ;
+
+-- DROPPING THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE MODIFY (DATE_OF_ENROLLMENT NULL);
+
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT) values (4,'Sarwesh',to_date('02-02-2002','dd-mm-yyyy'));
+
+-- adding THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE MODIFY (DATE_OF_ENROLLMENT NOT NULL);
+
+-- a column without the not null constraints 
+-- nulls will be allowed
+-- alter the table to add a not null constraint 
+-- fails since we already have nulls
+
+drop table test_nulls;
+create table test_nulls ( feedback varchar2(100));
+
+insert into test_nulls(feedback) values ( 'This is my first feedback');
+insert into test_nulls(feedback) values ( '');
+
+select * from test_nulls;
+
+ALTER TABLE test_nulls MODIFY (feedback NOT NULL);
+update test_nulls set feedback = 'Default feedback because it was null' where feedback is null 
+
+
+-- a) DATE_OF_BIRTH (check constraint  )
+drop TABLE MY_FIRST_TABLE;
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER,
+NAME VARCHAR2(100) ,
+DATE_OF_ENROLLMENT date constraint cons3 not null ,
+DATE_OF_BIRTH DATE,
+constraint cons1 primary key(rollno),
+constraint cons2 unique(name),
+CONSTRAINT cons4 CHECK(DATE_OF_BIRTH > to_date('01-01-2001','dd-mm-yyyy') )
+);
+
+
+select  * FrOM USER_constraints where table_name = 'MY_FIRST_TABLE' ;
+select  * FrOM  MY_FIRST_TABLE;
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT,DATE_OF_BIRTH) values (1,'gaurav',to_date('10-01-2001','dd-mm-yyyy'),to_date('10-01-2001','dd-mm-yyyy'));
+-- insert that will fail
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT,DATE_OF_BIRTH) values (2,'gaurav',to_date('01-01-2000','dd-mm-yyyy'),to_date('01-01-2000','dd-mm-yyyy'));
+-- null insert
+insert into MY_FIRST_TABLE(ROLLNO,NAME,DATE_OF_ENROLLMENT,DATE_OF_BIRTH) values (3,'sagar',to_date('01-01-2000','dd-mm-yyyy'),null);
+-- updating the column to not satisfy the check constraint 
+update MY_FIRST_TABLE set DATE_OF_BIRTH = to_date('01-01-2000','dd-mm-yyyy') where DATE_OF_BIRTH is null 
+
+
+-- DROPPING THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE drop constraint cons4
+
+-- adding THE CONSTRAINT
+ALTER TABLE MY_FIRST_TABLE add constraint CONS4 CHECK(DATE_OF_BIRTH > to_date('01-01-2001','dd-mm-yyyy') );
+
+
+--- Foreign key demo
+DROP TABLE  MY_FIRST_TABLE;
+DROP TABLE  MY_DEPARTMENT_TABLE;
+
+
+CREATE TABLE MY_DEPARTMENT_TABLE
+(
+DEPT_ID NUMBER ,
+DEPT_NAME VARCHAR2(100),
+constraint cons5 PRIMARY KEY(DEPT_ID)
+);
+
+
+CREATE TABLE MY_FIRST_TABLE
+(
+ROLLNO NUMBER ,
+NAME VARCHAR2(100) unique,
+DEPARTMENT_ID  NUMBER ,
+constraint cons6 primary key(rollno),
+CONSTRAINT CONS_FOR FOREIGN KEY (DEPARTMENT_ID) REFERENCES MY_DEPARTMENT_TABLE(DEPT_ID)
+);
+
+select * from MY_DEPARTMENT_TABLE;
+select * from MY_FIRST_TABLE;
+
+insert into MY_DEPARTMENT_TABLE (DEPT_ID,DEPT_NAME) values (100,'Computer Science');
+
+insert into MY_FIRST_TABLE (ROLLNO,NAME,DEPARTMENT_ID) values (1,'gaurav',100);
+-- invalid value 
+insert into MY_FIRST_TABLE (ROLLNO,NAME,DEPARTMENT_ID) values (2,'Sagar',200);
+-- insert null 
+insert into MY_FIRST_TABLE (ROLLNO,NAME,DEPARTMENT_ID) values (3,'Danny',null);
+
+
+---------------------------
+Exercise 01 -- Constraints
+---------------------------
+1) Create table named 
+lms_members(MEMBER_ID	varchar2, MEMBER_NAME varchar2,	CITY varchar2,	DATE_REGISTER date, DATE_EXPIRE	date, MEMBERSHIP_STATUS varchar2) 
+with constraints
+  i) primary key constraint on MEMBER_ID
+  ii) check constraint on DATE_REGISTER such that DATE_REGISTER > '01-01-2022'
+  iii) not null constraint on DATE_EXPIRE
+  iv) unique and not null constraint on MEMBER_NAME 
+
+2) drop all constraints 
+3) apply all constraints again using alter table command the one's defined in step1
+
+4) Insert following data -- use to_date('12-12-2012','dd-mm-yyyy') to store the hardcoded date
+   and observe why the cosntraint failed/ passed
+ 
+LM009	Nikita	Delhi	12-12-2022	12-12-2023	Temporary	
+LM009	Niki	Pune	02-12-2022	02-12-2023	Temporary	
+null	Rohit	Mumbai	09-12-2022	09-12-2023	Temporary	
+LM027	Priti	USA		01-06-2018	11-05-2023	Permanent	
+LM020	Supriya	Delhi	12-12-2022	null     	Temporary	
+LM024	Gaurav	Delhi	12-06-2022	12-05-2023	Temporary	
+LM025	Gaurav	pune	22-06-2022	22-05-2023	Permanent	
+LM026	null	nepal	02-06-2022	29-05-2023	Permanent	
+LM032	Sehwag	India	02-06-2022	29-05-2023	Permanent	
+
+
+----------------------------------------------------------------------
+Exercise 01 Solution -- Constraints 
+---------------------------------------------------------------------
+drop table lms_members;
+create table lms_members
+(
+Member_id varchar2(100),
+Member_name varchar2 (100) constraint cons4 not null,
+City varchar2 (100),
+Date_register date,
+Date_expire date constraint cons3 not null,
+Membership_status varchar2 (100),
+constraint cons1 primary key (Member_id),
+CONSTRAINT cons2 CHECK(Date_register > to_date('01-01-2022','dd-mm-yyyy')),
+constraint cons4_1 unique (Member_name)
+);
+select * from user_constraints where table_name = 'LMS_MEMBERS';
+ALTER TABLE lms_members drop constraint cons1;
+ALTER TABLE lms_members drop constraint cons2;
+ALTER TABLE lms_members drop constraint cons3;
+ALTER TABLE lms_members drop constraint cons4;
+ALTER TABLE lms_members drop constraint cons4_1;
+
+ALTER TABLE lms_members add constraint cons4_1 unique (Member_name);
+ALTER TABLE lms_members add constraint cons1 primary key(Member_id);
+ALTER TABLE lms_members add constraint cons2 CHECK(DATE_REGISTER > to_date('01-01-2022','dd-mm-yyyy'));
+ALTER TABLE lms_members MODIFY (Date_expire constraint cons3 NOT NULL);
+ALTER TABLE lms_members MODIFY (Member_name constraint cons4 NOT NULL);
+
+
+select * from lms_members ;
+
+delete from lms_members;
+
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM009','Nikita','Delhi',to_date('12-12-2022','dd-mm-yyyy'),to_date('12-12-2023','dd-mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM009','Niki','Pune',to_date('02-12-2022','dd-mm-yyyy'),to_date('02-12-2023','dd--mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES (null,'Rohit','Mumbai',to_date('09-12-2022','dd-mm-yyyy'),to_date('09-12-2023','dd--mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM027','Priti','USA',to_date('01-06-2018','dd-mm-yyyy'),to_date('11-05-2023','dd-mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM020','Supriya','Delhi',to_date('12-12-2022','dd-mm-yyyy'),null,'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM024','Gaurav','Delhi',to_date('12-06-2022','dd-mm-yyyy'),to_date('12-05-2023','dd-mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM025','Gaurav','Pune',to_date('22-06-2022','dd-mm-yyyy'),to_date('22-05-2023','dd-mm-yyyy'),'Temporary');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM026',null,'nepal',to_date('02-06-2022','dd-mm-yyyy'),to_date('29-05-2023','dd-mm-yyyy'),'Permanent');
+INSERT INTO lms_members (Member_id,Member_name,City,Date_register,Date_expire,Membership_status) VALUES ('LM032','Sehwag','India',to_date('02-06-2022','dd-mm-yyyy'),to_date('29-05-2023','dd-mm-yyyy'),'Permanent');
+
+----------------------------------------
+Exercise 02 -- Constraints [Assignment]
+----------------------------------------
+1) Create table named 
+Create table named lms_suppliers_details(SUPPLIER_ID varchar2,SUPPLIER_NAME varchar2,ADDRESS	varchar2, CONTACT number,EMAIL varchar2)
+with constraints
+  i) primary key constraint on SUPPLIER_ID
+  ii) not null constraint on CONTACT
+  iii) unique and not null constraint on SUPPLIER_NAME 
+
+2) drop all constraints 
+3) apply all constraints again using alter table command the one's defined in step1
+4) Insert following data and observe why the constraint failed/ passed
+ 
+S01		SINGAPORE SHOPPEE	CHENNAI		9894123555	sing@gmail.com // pass
+S01		Test	  			CHENNAI		9894123555	sing@gmail.com // fail
+NUll	Flat	  			CHENNAI		9894123555	sing@gmail.com // fail
+S02		JK Stores		    MUMBAI		null		jks@yahoo.com // fail
+S03		SINGAPORE SHOPPEE   TRIVANDRUM	9444411222	rose@gmail.com // fail
+S03		null			    TRIVANDRUM	9444411222	rose@gmail.com // fail
+
+
+
+--------------------------------------------------------
+SQL Selects Introduction
+-------------------------------------------------------
+
+-----------------------------------------------
+An Excel Demo:
+-----------------------------------------------
+Question : Supplier names of all suppliers whose address is 'MUMBAI'
+1) identify the source of data : lms_suppliers_details
+2) filter on column : address
+3) project column : supplier_name
+
+o/p:
+
+SUPPLIER_NAME
+-------------
+JK Stores
+AKBAR STORE
+D MART
+ZOMATO
+
+Question : Names of the books who belong to category JAVA
+1) identify the source of data : lms_book_details 
+2) filter on column : CATEGORY
+3) project column : BOOK_TITLE
+
+BOOK_TITLE
+-------------------------
+Java How To Do Program
+Java: The Complete Reference
+Java How To Do Program
+Java: The Complete Reference
+Java How To Do Program
+Java: The Complete Reference
+Head First Design Patterns: A Brain-Friendly Guide
+
+Question : Names of the members who stay in city Pune
+1) identify the source of data : lms_members 
+2) filter on column : CITY
+3) project column : MEMBER_NAME
+
+MEMBER_NAME
+------------
+Amruta
+Mayur
+Renuka
+Smita
+
+Question :Names of the members and date of registration who stay in city (Pune/Mumbai/Bangalore)
+1) identify the source of data : lms_members 
+2) filter on column : CITY [Pune or Mumbai or Bangalore]
+3) project column : MEMBER_NAME,DATE_REGISTER
+
+MEMBER_NAME			DATE_REGISTER               -- and/or operator
+----------------------------------              true 	OR		true      = true
+Amruta				02-03-2020                  false	OR		true      = true
+Gautam				12-06-2018                  true	OR		false	  = true
+Mayur				19-09-2019                  false	OR		false     = false
+Nikhil				09-03-2020                  
+Renuka				02-03-2020                  true 	AND		true      = true
+Sayali				12-06-2018                  false	AND		true      = false
+Smita				19-09-2019                  true	AND		false	  = false
+Snehal				09-03-2020                  false	AND		false     = false
+Ritesh				12-06-2018
+
+
+Question :Names of the books who belong to category JAVA and author is "Paul J. Deitel"
+1) identify the source of data : lms_book_details 
+2) filter on column : CATEGORY AND AUTHOR
+3) project column : BOOK_TITLE
+
+BOOK_TITLE
+--------------------------
+Java How To Do Program
+Java How To Do Program
+Java How To Do Program
+
+
+Question : Member_id and book_code of all issuances that have not paid any fine 
+1) identify the source of data : lms_book_issue 
+2) filter on column : FINE_RANGE
+3) project column : MEMBER_ID	BOOK_CODE
+
+MEMBER_ID	BOOK_CODE
+------------------------
+LM001		BL000001
+LM005		BL000005
+LM001		BL000002
+LM005		BL000002
+LM001		BL000001
+LM005		BL000005
+LM001		BL000002
+LM005		BL000002
+
+Question : Member_id and book_code of all issuances where DATE_RETURN < DATE_RETURNED [Fine pay]
+
+1) identify the source of data : lms_book_issue 
+2) filter on column : FINE_RANGE  -- =IF(E3<F3,"OUT")
+3) project column : MEMBER_ID	BOOK_CODE
+	
+	
+MEMBER_ID	BOOK_CODE
+--------------------------
+LM002		BL000002
+LM003		BL000007
+LM004		BL000005
+LM003		BL000007
+LM002		BL000001
+LM003		BL000005
+LM004		BL000007
+LM003		BL000001
+LM002		BL000002
+LM003		BL000007
+LM004		BL000005
+LM003		BL000007
+LM002		BL000001
+LM003		BL000005
+LM004		BL000007
+LM003		BL000001
+	
+	
+Question : Name of the book and "It is placed on rack num <Racknum_value>" display where the category is python 
+1) identify the source of data : lms_book_details 
+2) filter on column : Category
+3) project column : BOOK_TITLE, <Derived column named display >
+
+
+BOOK_TITLE                                                   display
+--------------------------------------------------------------------------------------------
+Python Cookbook: Recipes for Mastering Python 3              It is placed on rack num -
+Learn Python in 1 Day                                        It is placed on rack num A3
+Python Programming:An Introduction to Computer Science       It is placed on rack num -
+	
+--------------------------------------
+Above Excel Demo using SQL [DEMO]
+--------------------------------------
+
+------- Select ------
+
+1) from <table_name1>[,<table_name2>] -- identify the source of data 
+2) where <expression> -- filter on the identified dataset
+3) group by <expression> -- group based on expression
+4) having <expression> -- filter results received after the group by 
+5) order by <expression> 
+
+
+Pipeline : (FROM)o/p 1 ------>(Where)	--->o/p 2---> (Group by)--> o/p3 --> (having)--> o/p4 --> (order by ) -->o/p5-->(select)-->o/p6
+
+Question : Supplier names of all suppliers whose address is 'MUMBAI'
+1) identify the source of data : lms_suppliers_details
+2) filter on column : address
+3) project column : supplier_name
+
+select supplier_name
+from lms_suppliers_details
+where address = 'MUMBAI';
+
+o/p:
+
+SUPPLIER_NAME
+-------------
+JK Stores
+AKBAR STORE
+D MART
+ZOMATO
+
+Question : Names of the books who belong to category JAVA
+1) identify the source of data : lms_book_details 
+2) filter on column : CATEGORY
+3) project column : BOOK_TITLE
+
+select BOOK_TITLE
+from lms_book_details
+where CATEGORY = 'JAVA';
+
+BOOK_TITLE
+-------------------------
+Java How To Do Program
+Java: The Complete Reference
+Java How To Do Program
+Java: The Complete Reference
+Java How To Do Program
+Java: The Complete Reference
+Head First Design Patterns: A Brain-Friendly Guide
+
+Question : Names of the members who stay in city Pune
+1) identify the source of data : lms_members 
+2) filter on column : CITY
+3) project column : MEMBER_NAME
+
+select MEMBER_NAME
+from lms_members
+where lower(CITY) = 'pune';
+
+MEMBER_NAME
+------------
+Amruta
+Mayur 
+Renuka
+Smita
+
+Question :Names of the members and date of registration who stay in city (Pune/Mumbai/Bangalore)
+1) identify the source of data : lms_members 
+2) filter on column : CITY [Pune or Mumbai or Bangalore]
+3) project column : MEMBER_NAME,DATE_REGISTER
+
+select MEMBER_NAME,DATE_REGISTER
+from lms_members
+where lower(CITY) in ('pune','mumbai','bangalore');
+-- where lower(CITY) = 'pune' or lower(city) = 'mumbai' or lower(city) = 'bangalore';
+
+MEMBER_NAME			DATE_REGISTER               -- and/or operator
+----------------------------------              true 	OR		true      = true
+Amruta				02-03-2020                  false	OR		true      = true
+Gautam				12-06-2018                  true	OR		false	  = true
+Mayur				19-09-2019                  false	OR		false     = false
+Nikhil				09-03-2020                  
+Renuka				02-03-2020                  true 	AND		true      = true
+Sayali				12-06-2018                  false	AND		true      = false
+Smita				19-09-2019                  true	AND		false	  = false
+Snehal				09-03-2020                  false	AND		false     = false
+Ritesh				12-06-2018
+
+
+Question :Names of the books who belong to category JAVA and author is "Paul J. Deitel"
+1) identify the source of data : lms_book_details 
+2) filter on column : CATEGORY AND AUTHOR
+3) project column : BOOK_TITLE
+
+select BOOK_TITLE
+from lms_book_details
+where  CATEGORY = 'JAVA' AND AUTHOR = 'Paul J. Deitel';
+
+BOOK_TITLE
+--------------------------
+Java How To Do Program
+Java How To Do Program
+Java How To Do Program
+
+
+Question : Member_id and book_code of all issuances that have not paid any fine 
+1) identify the source of data : lms_book_issue 
+2) filter on column : FINE_RANGE
+3) project column : MEMBER_ID	BOOK_CODE
+
+select MEMBER_ID,BOOK_CODE
+from lms_book_issue
+where FINE_RANGE is null;
+
+MEMBER_ID	BOOK_CODE
+------------------------
+LM001		BL000001
+LM005		BL000005
+LM001		BL000002
+LM005		BL000002
+LM001		BL000001
+LM005		BL000005
+LM001		BL000002
+LM005		BL000002
+
+Question : Member_id and book_code of all issuances where DATE_RETURN < DATE_RETURNED [Fine pay]
+
+1) identify the source of data : lms_book_issue 
+2) filter on column : FINE_RANGE  -- =IF(E3<F3,"OUT")
+3) project column : MEMBER_ID	BOOK_CODE
+	
+	select MEMBER_ID,BOOK_CODE
+	from lms_book_issue
+	where DATE_RETURN < DATE_RETURNED;
+	
+MEMBER_ID	BOOK_CODE
+--------------------------
+LM002		BL000002
+LM003		BL000007
+LM004		BL000005
+LM003		BL000007
+LM002		BL000001
+LM003		BL000005
+LM004		BL000007
+LM003		BL000001
+LM002		BL000002
+LM003		BL000007
+LM004		BL000005
+LM003		BL000007
+LM002		BL000001
+LM003		BL000005
+LM004		BL000007
+LM003		BL000001
+	
+	
+Question : Name of the book and "It is placed on rack num <Racknum_value>" display where the category is python 
+1) identify the source of data : lms_book_details 
+2) filter on column : Category
+3) project column : BOOK_TITLE, <Derived column named display >
+
+desc lms_book_details;
+
+select BOOK_TITLE, concat('It is placed on rack num',RACK_NUM) display
+from lms_book_details
+where lower(Category) = 'python' ;
+--'It is placed on rack num' || RACK_NUM
+BOOK_TITLE                                                   display
+--------------------------------------------------------------------------------------------
+Python Cookbook: Recipes for Mastering Python 3              It is placed on rack num -
+Learn Python in 1 Day                                        It is placed on rack num A3
+Python Programming:An Introduction to Computer Science       It is placed on rack num -
+
+-------------------------------
+Hands On session -- Assignment
+-------------------------------
+select MEMBER_NAME from lms_members where upper(member_name) like '%A%';
+------------
+/* Name of the supplier that reside in chennai/delhi/ahmedabad */
+/* Display Name of the member , City in which he resides , date of membership expiry,
+    duration in days in which he is a member as of today
+*/
+/*  Name of the supplier , contact , email , Address who resides in either Mumbai Or Delhi 
+    and email does not belong to gmail account*/
+
+/* name of the member who has an a/A in it and status is temporary */
+/* name of the member who resides in Pune and his membership_status is Permanent*/
+/* name of the suppliers who has a gmail account*/
+/* name of the books who were published by Tata Mcgraw Hill */
+/*
+Name of the book , 
+Year in which it was published ,
+publication name , 
+Category ,
+Type of Language (Java -> Object Oriented Language , C-> Procedural language )
+for book that were published on or after Year 2005 or not published by Tata Mcgraw Hill
+*/	

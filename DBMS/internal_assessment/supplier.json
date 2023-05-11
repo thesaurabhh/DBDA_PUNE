@@ -1,0 +1,54 @@
+[
+	{
+		"_id": "S001",
+		"Name": "Gaurav Store",
+		"email_id": "gaurav@gmail.com",
+		"contact": 9837498734,
+		"address": "Pune",
+		"rating": 4,
+		"items_supplied" : ["toothbrush","toothpaste","nail cutter","biscuits"]
+	},
+	{
+		"_id": "S002",
+		"Name": "Deepak Store",
+		"email_id": "deep@gmail.com",
+		"contact": 97877498734,
+		"address": "Bangalore",
+		"rating": 2,
+		"items_supplied" : ["boots","toothpaste","nail cutter","coffee"]
+	},
+	{
+		"_id": "S003",
+		"Name": "Mayur Store",
+		"email_id": "maya@gmail.com",
+		"contact": 9832138734,
+		"address": "Chennai",
+		"rating": 5,
+		"items_supplied" : ["brush","book","nail cutter","biscuits"]
+	},
+	{
+		"_id": "S004",
+		"Name": "Twinkle Store",
+		"email_id": "twinkle@gmail.com",
+		"contact": 978998734,
+		"address": "Pune",
+		"rating": 3
+	},
+	{
+		"_id": "S005",
+		"Name": "Omkar Store",
+		"email_id": "omkar@gmail.com",
+		"contact": 9838758734,
+		"address": "Pune",
+		"rating": 3,
+		"items_supplied" : ["tea","coffee","nail cutter","bags"]
+	},
+	{
+		"_id": "S006",
+		"Name": "Shubham Store",
+		"email_id": "shubham@gmail.com",
+		"contact": 9837854634,
+		"address": "Chennai",
+		"rating": 4
+	}
+]

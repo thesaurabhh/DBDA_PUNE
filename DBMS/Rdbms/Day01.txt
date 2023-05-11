@@ -1,0 +1,166 @@
+Today's Agenda
+------------------------------
+
+--- Understand Database Concepts ---
+What is a database?
+The need for it ?
+The variant available in the market?
+
+Oracle as Database ? what category ? Some things around Oracle as a database?
+Codd’s 12 rules?
+Introduction to SQL ?
+
+Oracle Environment ready?
+
+---------------------------------------------
+
+Repository of data 
+Optimised way of inserting and retrieving data
+Data stored in structured manner
+
+Different types of data
+Collection of relational data 
+-----------------------------------
+Store of Data -->  structured in a format --> retrived --> analysis 
+
+DBMS -- software that helps you work with database 
+------------------
+
+-- RDBMS ( Relational Database Management system ) 
+Mysql( Free ), Postgres ( Free ) ,SQL server (Microsoft)/Azure SQL database,
+Oracle ( Paid )  , SqlLite(Free) ,BigTable( Google ), DB2( Paid)
+
+-- NOSQL Database()
+, MongoDB,Cassandra,DynamoDB
+
+--------------------
+
+--------------------------
+SQL : Introduction
+--------------------------
+
+Structured Query Language -- High level language that helps talk to the database
+
+Categories of commands in SQL
+---------------------
+a) DDL (Data Definition Language) [changes made would be permanent]
+CREATE, DROP, ALTER, RENAME,TRUNCATE
+
+b) DML (Data Manipulation Language)[changes made would be Temporary]
+INSERT,UPDATE,DELETE
+
+c) TCL ( Transaction Control Language) [Always works on DML's]
+COMMIT ROLLBACK SAVEPOINT
+
+d) DCL ( Data Control Language) [useful across users when you need to give/takeback permissions	]
+GRANT REVOKE 
+
+e) DQL ( Data Query Language)
+SELECT
+
+
+------------------
+------------------
+Create table table_name 
+(
+ column_name1 datatype,
+ column_name2 datatype(precision),
+ .
+ .
+ column_name1 datatype
+);
+
+-- datatypes 
+-- numeric category
+      number,short,long,int
+-- string category
+      varchar2(10), varchar(10),char(10)
+-- datetime category
+      date, timestamp , timestamp with timezone 
+-- largeobject category
+    clob,blob
+
+Create table my_first_table  
+(
+ my_first_column  number,
+ my_second_column varchar2(100),
+ my_third_column  date,
+ my_fourth_column timestamp
+);
+-- dictionary views / online data catalog 
+select * from user_tables ;
+select * from user_tab_columns ;
+
+describe my_first_table;
+
+Create table table_name 
+(
+ column_name1 datatype,
+ column_name2 datatype(precision),
+ .
+ .
+ column_name1 datatype
+);
+
+-- datatypes 
+-- numeric category
+      number,short,long,int
+-- string category
+      varchar2(10), varchar(10),char(10)
+-- datetime category
+      date, timestamp , timestamp with timezone 
+-- largeobject category
+    clob,blob
+
+Create table my_first_table  
+(
+ my_first_column  number,
+ my_second_column varchar2(100),
+ my_third_column  date,
+ my_fourth_column timestamp
+);
+-- dictionary views / online data catalog 
+select * from user_tables ;
+select * from user_tab_columns ;
+
+describe my_first_table;
+
+drop table my_first_table;
+/* alter table table_name add (column_name datatype , column_nam1 datatype);*/
+
+alter table my_first_table add(my_fifth_column timestamp);
+alter table my_first_table drop(my_fifth_column );
+alter table my_first_table rename column my_fourth_column to my_fourth_column_NEW;
+
+rename my_first_table to my_first_table_NEW;
+describe my_first_table_NEW;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,298 @@
+-- install on windows 
+https://phoenixnap.com/kb/install-cassandra-on-windows#ftoc-heading-1
+-- install on ubuntu
+https://phoenixnap.com/kb/install-cassandra-on-ubuntu
+
+
+
+-- syntax references 
+https://cassandra.apache.org/doc/latest/cassandra/cql/ddl.html#create-table-statement
+https://docs.datastax.com/en/cql-oss/3.1/cql/cql_reference/alter_table_r.html?hl=rename%2Ccolumn
+
+---------
+Data modelling for LMS
+----------
+
+library management system which supports following operations:
+-----------------------------------------------------------------
+	member can issue a book
+	member can return a book 
+	a supplier can supply a book
+
+
+
+----------------------------------
+Queries that the application can run:
+
+a) member_name , date_register who have issued a book
+b) supplier_name, address who have supplied a book
+c) list of the all the books in the lms
+d) list of all members in my lms
+e) book_name , supplier_name of the book
+f) member_name , supplier_name , book_name that have been issued 
+
+-------
+Steps tp arrive at the physical data model would be 
+--------
+1) conceptual model ---> 2) logical model ---- > 3) Physical model 
+
+-----------------
+example table for the above example of LMS would be 
+------------------
+
+supporting query : member_name , date_register who have issued a book
+
+create table member_by_issuance
+(
+	member_name , 
+	date_register,
+	issue_date,
+	primary key (issue_date,member_name)
+);
+
+select member_name,date_register
+from member_by_issuance where issue_date is not null;
+
+
+------------------------
+CRUD operations DEMO
+-- blog references 
+https://phoenixnap.com/kb/create-drop-alter-and-truncate-tables-in-cassandra
+------------------------
+create table test2 
+(
+a int,
+b int,
+c int,
+primary key ((a,b),c) 
+) 
+with comment = 'this is my second table'
+
+alter table test2 add( d int );
+alter table test2 drop( d );
+alter table test2 rename c to c_new ;
+
+
+	;
+WITH CLUSTERING ORDER BY (insertion_time DESC)
+
+
+*****************************************************
+Exercises for CRUD in CQL
+*****************************************************
+
+a) DDL (Data Definition Language) [changes made would be permanent]
+CREATE, DROP, ALTER, RENAME,TRUNCATE
+
+b) DML (Data Manipulation Language)[changes made would be Temporary]
+INSERT,UPDATE,DELETE
+
+c) DQL ( Data Query Language)
+SELECT
+
+***********************************************************************
+Hands on trials for DDL,DML,DQL:
+a) Create tables --> drop , alter , rename , truncate 
+b) Insert data to the table 
+c) Delete the data from the table 
+d) Update some data from the table 
+e) Select
+***********************************************************************
+------------------------------------------------------------
+Exercise Question 1 :
+--------------------------------------------------------
+a) Create tables to support following Queries for the LMS application
+
+	1) provide the member_name , date_register, membership_status
+	for the members who have issued a book on a particular issue_date 
+	ordered on date_register descending 
+
+	2)provide the member_name , date_register, membership_status
+	for the members who have returned a book on a particular return_date
+	ordered by membership_status asc
+		
+	3) provide the supplier_name , address of supplier , supplier_contact
+	who have supplied a particular book_name
+
+	4) provide the supplier_name , address of supplier , supplier_contact
+	who have supplied a book
+
+	5) provide the book_name , category of the book , publication
+	of the books which are supplied by a given supplier
+
+b) Drop all the tables created 
+c) create the tables back again as in step (a) 
+d) Alter the table that supports query 5 to 
+  i) add two more columns ADDRESS CONTACT to table 
+  ii) Modify the datatype of existing Address column to be varchar(3999)
+  iii) rename the address column name to member_address
+  iv) drop the contact column 
+   v) rename the table to lms_books_by_supplier_practice
+
+e) Insert some sample data to all the tables created in step (a)
+f) delete all the rows
+g) insert the data back again in point (e) 
+h) update for all rows member_address column to Karnataka in table supporting Query 5 
+
+------------------------------------------------------------
+---- Solution ----
+--------------------------------------------------------
+a) Create tables to support following Queries for the LMS application
+
+	1) provide the member_name , date_register, membership_status
+	for the members who have issued a book on a particular issue_date 
+	ordered on date_register descending 
+
+create table lms_member_by_issuance(
+	member_name varchar,
+	date_register date, 
+	membership_status varchar,
+	book_issue_id int,
+	date_issue date,
+	primary key (member_name,date_issue,date_register,book_issue_id)
+) with clustering order by (date_issue asc ,date_register desc ,book_issue_id asc);
+		
+	
+	2)provide the member_name , date_register, membership_status
+	for the members who have returned a book on a particular return_date
+	ordered by membership_status asc
+	
+create table lms_member_by_return_date
+(
+	member_name varchar,
+	date_register date, 
+	membership_status varchar,
+	book_issue_id int,
+	date_issue date,
+	date_return date,
+	primary key (member_name,date_return,membership_status,book_issue_id)
+);
+	
+		
+	3) provide the supplier_name , address of supplier , supplier_contact
+	who have supplied a particular book_name
+
+	4) provide the supplier_name , address of supplier , supplier_contact
+	who have supplied a book
+
+create table lms_supplier_by_book_code
+(
+	supplier_name varchar,
+	address varchar,
+	supplier_contact int,
+	book_code varchar,
+	book_name varchar,
+	primary key (book_name,book_code)
+) ;
+	
+
+	5) provide the book_name , category of the book , publication
+	of the books which are supplied by a given supplier
+
+create table lms_book_details_by_supplier
+(
+	book_code varchar,
+	book_name varchar,
+	category varchar,
+	publication varchar,
+	supplier_name varchar,
+	primary key (supplier_name,book_code)
+) ;
+	
+b) Drop all the tables created 
+  
+  drop table lms_book_details_by_supplier;
+  drop table lms_supplier_by_book_code;
+  drop table lms_member_by_return_date;
+  drop table lms_member_by_issuance;
+  
+c) create the tables back again as in step (a) 
+
+d) Alter the table that supports query 5 to 
+  i) add two more columns ADDRESS CONTACT to table 
+  alter table lms_book_details_by_supplier add (ADDRESS varchar , CONTACT int );
+  
+  ii) Modify the datatype of existing Address column to be int
+	  
+	  alter table lms_book_details_by_supplier alter Address type int;
+	  
+	  
+	InvalidRequest: Error from server: code=2200 [Invalid query] message="Altering column types is no longer supported"
+
+	--As of Cassandra 3.10 and 3.0.11, the ability to change column data type has been removed
+	https://issues.apache.org/jira/browse/CASSANDRA-12443
+	
+	
+	--Reason :because we no longer store the length for all types anymore, switching from a fixed-width to variable-width type causes issues. 
+	commitlog playback breaking startup, queries currently in flight getting back bad results, and special casing required to handle the changes.
+
+  iii) rename the address column address to member_address
+		alter table lms_book_details_by_supplier rename address  to member_address;	
+		
+		InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot rename non PRIMARY KEY column book_name"
+
+		--"Only primary key can be renamed"
+
+  iv) drop the contact column 
+   alter table lms_book_details_by_supplier drop (CONTACT);
+
+   v) rename the table to lms_books_by_supplier_practice
+   
+   
+    rename lms_book_details_by_supplier to books_supplied_practice;
+
+	-- you cannot rename tables or keyspaces,
+	[https://stackoverflow.com/questions/18112384/how-to-rename-table-in-cassandra-cql3]
+
+e) Insert some sample data to all the tables created in step (a)
+
+insert into lms_book_details_by_supplier (book_code,book_name ,category ,publication ,supplier_name) 
+values ('BL001','Java how to program','Java','Tata Mcgraw Hill','Singapore shoppe');
+
+f) delete all the rows
+		delete from lms_book_details_by_supplier;
+
+		Does not work with where clause as it is a distributed database deletetion cannot happen because comparisions cannot happen across multiple clusters.
+
+		The only way to delete all data is to use TRUNCATE
+
+		truncate table lms_book_details_by_supplier;
+
+g) insert the data back again in point (e) 
+
+h) update for all rows member_address column to Karnataka in table supporting Query 5 
+
+		update lms_book_details_by_supplier set address = 'Karnataka' ;
+		
+		-- error cannot update without the where clause
+		-- no viable alternative at input '*' (...address = 'Karnataka'
+		
+		Reason : Since it is a distributed database updation cannot happen because comparisions cannot happen across multiple clusters.
+
+
+-----------------------------
+Group by , order by clauses 
+-----------------------------
+
+lms_book_details_by_supplier;
+lms_supplier_by_book_code;
+lms_member_by_return_date;
+lms_member_by_issuance;
+
+/*Note : Insert a few rows if required to satisfy the query criteria to return few rows */
+
+i) No of books that the supplier has provided 
+ii) member_name which has done more that two issuances of books
+iii) no of members who have returned book in the last week from today 
+iv) no of members who have returned book yesterday
+v) member_name , return_date when the book was returned in last week 
+   ordered on return_date asc 
+   
+   
+Collection Types in Cassandra:
+-----------------------------
+
+https://cassandra.apache.org/doc/latest/cassandra/cql/types.html
+
+
+   

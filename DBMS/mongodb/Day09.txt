@@ -1,0 +1,157 @@
+--------------------
+CRUD DEMO
+----------------------
+
+----------------------------------------------------
+DEMO -- Create / insert documents 
+----------------------------------------------------
+
+db.createCollection("my_first_collection")
+show collections;
+
+
+// insert
+db.my_first_collection.insertOne(  { "my_first_field" : "ONE" }   );
+db.my_first_collection.insertOne(  { "my_second_field" : "SECOND" }   );
+db.my_first_collection.insertOne( {
+                                    	"my_first_field": "ONE",
+                                    	"my_second_field": "SECOND"
+                                   }
+                                 );
+
+db.my_first_collection.insertOne( {
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 );
+
+
+// see insert
+db.my_first_collection.find();
+
+// insert mutliple documents
+db.my_first_collecton.insertMany(
+[
+	{
+											"my_third_field": "THIRD",
+											"my_fourth_field": "FOURTH"
+	},
+	{
+											"my_third_field": "ONE",
+											"my_fourth_field": "TWO"
+	},
+	{
+											"my_third_field": "ONE",
+											"my_fourth_field": "FOURTH"
+	}
+]
+);
+ 
+show collections
+
+db.my_first_collecton.find();
+
+// correct insert many 
+db.my_first_collection.insertMany(
+[
+	{
+											"my_third_field": "THIRD",
+											"my_fourth_field": "FOURTH"
+	},
+	{
+											"my_first_field": "ONE",
+											"my_second_field": "TWO"
+	},
+	{
+											"my_first_field": "ONE",
+											"my_fourth_field": "FOURTH"
+	}
+]
+);
+
+db.my_first_collection.find();
+
+
+// insert one ( case sensitive ) 
+
+db.my_first_collectIon.insertOne( {
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 );
+
+
+show collections
+
+// insert my object _id
+
+db.my_first_collectIon.insertOne( {
+                                    	"_id" : 1234567,
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 ); 
+
+db.my_first_collectIon.insertOne( {
+                                    	"_id" : "My_string",
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 );   
+
+// this fails because of duplicate _id
+db.my_first_collectIon.insertOne( {
+                                    	"_id" : "My_string",
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 );   
+                                 
+
+db.my_first_collectIon.find();                                 
+// lets try to insert same _id against different collection 
+db.my_first_collection.insertOne( {
+                                    	"_id" : "My_string",
+                                    	"my_third_field": "THIRD",
+                                    	"my_fourth_field": "FOURTH"
+                                   }
+                                 );   
+                                                                                                                            
+db.my_first_collection.find();    
+
+
+----------------------------------------------------
+DEMO -- Delete the inserted documents 
+----------------------------------------------------
+delete from my_first_collection where _id = 'my_string';
+
+// delete 
+db.getCollection("my_first_collection").deleteOne({"_id":"My_string"});
+db.getCollection("my_first_collection").deleteOne({"my_third_field":"ONE"});
+db.getCollection("my_first_collection").deleteMany({"my_third_field":"THIRD"});
+
+// alternatively if we do not want to use getCollection method then simply write collection name 
+db.my_first_collection.deleteOne({"_id":"My_string"});
+db.my_first_collection.deleteOne({"my_third_field":"ONE"});
+db.my_first_collection.deleteMany({"my_third_field":"THIRD"})
+
+// delete 
+db.getCollection("customer").find({"address":"Pune"})
+db.getCollection("customer").deleteMany({"address":"Pune"});
+db.getCollection("customer").deleteOne({"address":"Bangalore"});
+
+// delete an array element 
+db.getCollection("customer").find({_id : "C001"}, {"Cart.added_products":1});
+db.customer.updateOne({_id : "C001"},{$pull: { "Cart.added_products" : {"product_id" : "X001" }} })
+
+----------------------------------------------------
+DEMO -- Update the inserted documents 
+----------------------------------------------------
+
+// update my_first_collectIon  set my_third_field = 'Updated' // Update Many
+db.my_first_collectIon.updateOne({},{$set : {my_third_field : "Updated" } })
+db.my_first_collectIon.updateMany({},{$set : {my_fourth_field : "Updated_again" } })
+db.my_first_collectIon.updateMany({},{$set : {my_fifth_field : "Updated_here_again" } }) 
+
+
+

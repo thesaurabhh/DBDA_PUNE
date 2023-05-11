@@ -1,0 +1,25 @@
+# get the current environment list 
+conda env list
+
+# To create an environment:
+conda create -n test-env
+
+# To activate an environment: 
+conda activate test-env
+
+#To see a list of all packages installed in environment:
+conda list
+
+# to install pandas into the environment 
+conda install pandas 
+
+#To see a list of all packages installed in environment:
+conda list
+
+# To deactivate a current environment you are into: 
+conda deactivate 
+
+# To remove an environment, in your terminal window or an Anaconda Prompt, run:
+conda remove --name test-env --all
+
+

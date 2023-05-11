@@ -1,0 +1,19 @@
+Refer : common_sequence_operations_demo.py
+
+--------------------------------------------------------------------------------------------------------
+Assignment/Exercises 
+Topics covered : Modules,Functions,Looping,Conditional constructs,Input,Output,LIST Collections :
+-------------------------------------------------------------------------------------------
+1) Create a program named "my_list_store"
+which support following operations on list named "members" which is provided by the user 
+for ex: ["Pratiksha","Kevin","Sachin","Yuvraj","Sania"] is provided by the user 
+
+Operations supported by our program are :
+  1:  Display number of elements in the members list
+  2:  Add an element to the members collection like 'Sehwag' 
+  3:  Add elements to the members collection like ['David','Bret','Sanju']
+  4:  Remove a member from the collection at a given subscript
+  5:  Remove the last member from the collection 
+  6:  Display third, fourth and fifth element from the collection 
+
+Keep asking the user for the operation in this store untill he chooses to exit from the program

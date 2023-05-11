@@ -1,0 +1,528 @@
+
+----------------------------------------------------
+DEMO -- Update the inserted documents 
+----------------------------------------------------
+
+// update my_first_collectIon  set my_third_field = 'Updated' // Update Many
+db.my_first_collectIon.updateOne({},{$set : {my_third_field : "Updated" } })
+db.my_first_collectIon.updateMany({},{$set : {my_fourth_field : "Updated_again" } })
+db.my_first_collectIon.updateMany({},{$set : {my_fifth_field : "Updated_here_again" } }) 
+
+// update members collection set status = 'Temporary ' for all members who belong to Pune (CI)
+// /pune/ lower(city) like '%pune%'
+
+db.LMS_MEMBERS.updateMany({CITY:/pune/i},{$set:{MEMBERSHIP_STATUS:"Temporary"} });
+db.LMS_MEMBERS.find({CITY:/Pune/i},{});
+
+// Upsert to true 
+db.LMS_MEMBERS.updateMany({CITY:"BOGUS_CITY"},{$set:{MEMBERSHIP_STATUS:"Permanent" , MEMBER_NAME : 'Bogus_member'} });
+db.LMS_MEMBERS.updateMany({CITY:"BOGUS_CITY"},{$set:{MEMBERSHIP_STATUS:"Permanent" , MEMBER_NAME : 'Bogus_member'} },{upsert : true});
+
+db.LMS_MEMBERS.find({CITY:"BOGUS_CITY"},{});
+
+// update book details and set edition number = 10 for all books with python category
+/*
+update  LMS_BOOK_DETAILS
+set  BOOK_EDITION = 10
+where category = 'python'
+*/
+
+db.LMS_BOOK_DETAILS.updateMany({CATEGORY : /python/i},{$set : {BOOK_EDITION : NumberInt(10)}})
+db.LMS_BOOK_DETAILS.find({CATEGORY : /python/i},{});
+
+// update book details and set edition number = 15 and price 10,000 for all books with python category
+// update lms_book_details set edition = 15 , price = 10000 where category   = 'python';
+
+db.LMS_BOOK_DETAILS.updateMany({CATEGORY : /python/i},{$set : {BOOK_EDITION : NumberInt(15) , PRICE : NumberInt(10000)}})
+
+
+----------------------------------
+DEMO -- Simple selects using find()
+----------------------------------
+// select *  from customer 
+db.customer.find({},{});
+
+// select *  from customer where address = 'Pune'
+db.customer.find({address: "Pune"},{});
+db.customer.find({address: { $eq: "Pune" }},{}); // $eq is implicit in above statement
+
+// select * from customer where address like '%pune%'
+db.getCollection("customer").find({ "address" : /pune/});
+db.getCollection("customer").find({ "address" : { $regex: /pune/ } });
+
+// select * from customer where lower(address) like '%pune%'
+db.getCollection("customer").find({ "address" : /pune/i}); 
+db.getCollection("customer").find({  "address" : { $regex: /pune/i } });
+
+// select * from customer where street_no = 123
+db.customer.find({"billing_address.street_no": 123},{});
+db.customer.find({"billing_address.street_no": {$eq: 123}},{});
+
+// select * from  customer.Cart.added_products[] where [].product_id = 'X001' // invalid syntax just for reference
+db.customer.find({ "Cart.added_products": {$elemMatch: { "product_id" : "X001"} }  },{});
+
+// select * from  customer.Cart.added_products[] where [].product_id = 'X003' // invalid syntax just for reference
+db.customer.find({ "Cart.added_products": {$elemMatch: { "product_id" : "X003"} }  },{});
+
+// select * from customer where total_cost > 350
+db.customer.find({"Cart.total_cost": {$gt: 350}},{});
+
+// select * from customer where total_cost > 350 and address = 'Pune'
+db.customer.find({"Cart.total_cost": {$gt: 350} , address : "Pune"},{});
+db.customer.find({  $and: [{"Cart.total_cost": {$gt: 350} }, {address : "Pune"}]  }   ,{});
+
+// db.customer.find({  $or: [{"Cart.total_cost": {$gt: 350} }, {address : "Pune"}]  }   ,{});
+
+// select * from customer where address in ('Pune','Chennai')
+db.customer.find({address: { $in : ["Pune","Chennai"]}},{});
+
+// select * from customer where lower(address) in ('pune','chennai')
+db.customer.find({address: { $in : [/pune/i,/chennai/i]}},{});
+
+// select * from customer where address != 'Chennai'
+db.customer.find({address: { $ne : "Chennai"}},{});
+
+// select * from customer where address != 'chennai' // not so useful use case of toLowerCase()
+db.customer.find({address: { $ne : "Chennai".toLowerCase() }},{});
+db.customer.find({address: { $ne : "Chennai".toUpperCase() }},{}); 
+
+// db.customer.find({},{"name_lower": $_id.name.toLowerCase()}); // good use case of toLowerCase() 
+
+
+/*--------------------------------------------
+  Exercises on simple selects 
+-------------------------------------------- */
+
+// Name of the supplier that reside in chennai  [Case insensitive ]
+
+
+// Name of the supplier that reside in chennai/delhi/ahmedabad  [Case insensitive ]
+
+
+// Name of the supplier , contact , email , Address 
+// who resides in either Mumbai Or Delhi [CI] and email does not belong to gmail account
+
+
+// book_name,book_publication
+// of all books placed on rack_num = a1 and publication is not equal to tata mcgraw hill
+
+// book_code , member_id of all book issuances which have been fined 
+
+// Query for embedded json
+// book_name and publication whose has atleast one supplier from chennai (CI)
+
+
+
+-----------------------
+Solutions
+-----------------------
+
+/*--------------------------------------------
+  Exercises on simple selects 
+-------------------------------------------- */
+
+// Name of the supplier that reside in chennai  [Case insensitive ]
+
+db.LMS_SUPPLIERS_DETAILS.find({"ADDRESS": /Chennai/i },{"SUPPLIER_NAME":1,"_id":0})
+
+// Name of the supplier that reside in chennai/delhi/ahmedabad  [Case insensitive ]
+db.LMS_SUPPLIERS_DETAILS.find({ ADDRESS: {$in: [/cHENNAI/i,/delhi/i,/ahmedabad/i]}} ,{ADDRESS:1 , _id:0})
+db.LMS_SUPPLIERS_DETAILS.find({$or : [ { ADDRESS : /cHENNAI/i } , {ADDRESS :/delhi/i } ,{ADDRESS : /ahmedabad/i}]},{ADDRESS:1 , _id:0});
+
+// Name of the supplier , contact , email , Address 
+// who resides in either Mumbai Or Delhi [CI] and email does not belong to gmail account
+
+db.LMS_SUPPLIERS_DETAILS.find({$and: [ {$or : [ { ADDRESS : /Mumbai/i } , {ADDRESS :/Delhi/i } ]} ,{ EMAIL: { $not:  /@gmail.com/  } }] },{SUPPLIER_NAME:1,CONTACT:1,EMAIL:1});
+db.LMS_SUPPLIERS_DETAILS.find({$or : [ { ADDRESS : /Mumbai/i } , {ADDRESS :/Delhi/i } ] ,EMAIL: { $not:  /.*@gmail.com/  }  },{SUPPLIER_NAME:1,CONTACT:1,EMAIL:1});
+// db.LMS_SUPPLIERS_DETAILS.find({$or : [ { ADDRESS : /Mumbai/i } , {ADDRESS :/Delhi/i } ]} , { EMAIL: { $not:  /.*@gmail.com/  } },{});
+
+
+// book_name,book_publication
+// of all books placed on rack_num = a1 and publication is not equal to tata mcgraw hill
+
+db.LMS_BOOK_DETAILS.find({RACK_NUM : "A1" , PUBLICATION : { $ne: "Tata Mcgraw Hill"}},{BOOK_TITLE:1,PUBLICATION:1});
+db.LMS_BOOK_DETAILS.find({$and: [{RACK_NUM : "A1"}, {PUBLICATION : { $ne: "Tata Mcgraw Hill"}}]},{BOOK_TITLE:1,PUBLICATION:1});
+db.LMS_BOOK_DETAILS.find({$and : [{RACK_NUM : "A1" },{PUBLICATION : { $not: { $regex : /Tata Mcgraw Hill/}}}]},{BOOK_TITLE:1,PUBLICATION:1});
+
+/*
+RACK_NUM : "A1" , 
+PUBLICATION : { $neq: "Tata Mcgraw Hill"}
+PUBLICATION : { $not: { $regex : /Tata Mcgraw Hill/}}
+!= '%goa%'
+like '%goa%'
+*/
+
+// book_code , member_id of all book issuances which have been fined 
+db.LMS_BOOK_ISSUE.find({FINE_RANGE : {$ne: null }},{BOOK_CODE:1,MEMBER_ID:1,FINE_RANGE : 1});
+db.LMS_BOOK_ISSUE.find({FINE_RANGE : {$ne: "" }},{}); // "" is not equal to null in mongodb
+db.LMS_BOOK_ISSUE.find({FINE_RANGE : {$regex: /.*/ }},{BOOK_CODE:1,MEMBER_ID:1,FINE_RANGE : 1});
+
+// Query for embedded json
+// book_name and publication whose has atleast one supplier from chennai (CI)
+
+db.EMBEDDED_JSON.find({BOOKS_SUPPLIED : { $elemMatch: {ADDRESS : /CHENNAI/i}} },{BOOK_TITLE:1,PUBLICATION:1,BOOKS_SUPPLIED:1});
+// BOOKS_SUPPLIED : { $elemMatch: {ADDRESS : /CHENNAI/I}} 
+
+// this query gives similar output since we are using = to chennai , if we have != then we would have different results 
+// for more info visit https://www.mongodb.com/docs/manual/reference/operator/query/elemMatch/
+db.EMBEDDED_JSON.find({ "BOOKS_SUPPLIED.ADDRESS" : "CHENNAI" },{BOOK_TITLE:1,PUBLICATION:1,BOOKS_SUPPLIED:1});
+
+// DEMO TO DEMONSTRATE USE OF EXISTS IS DIFFERENT FROM not NULLS 
+// the query { field : {$ne : null} } check for not-null []
+
+db.test_nulls.insert({"num":1, "contact":"89898989898"});
+db.test_nulls.insert({"num":2, "contact":""});
+db.test_nulls.insert({"num":3, "contact":null});
+db.test_nulls.insert({"num":4});
+
+// This will return all  documents:
+db.test_nulls.find();
+
+// This will return the first,second,third documents only: 
+//return all documents with a key called "contact" was received during insertion
+db.test_nulls.find({"contact":{$exists:false}});
+
+// This will return the first,second document only:
+// return all documents with a key called "contact" was received during insertion and also has a not null value 
+db.test_nulls.find({"contact":{$ne:null}});
+
+
+---------------------------------------------
+EXERCISES on Crud
+------------------------------------------
+IPL 
+------
+Players --> p_name,dob, skill,is_oversea_player  medical_details(last_yoyo_date,is_passed), team_name
+Teams--> t_name,owner,budget, overseas_players(array which will contain overseas player)
+Scores --> p_name, skill, total_runs(if batting), total_wickets(if bowlers)
+
+-- Create the collections
+12 Players (6 Overseas, 6 Indian)
+3 teams 
+5 Scores
+
+"medical_details" : {"last_yoyo_date" : ISO() , is_passed : "Y"}
+"overseas_players" : [{"p_name" : "Gayle" },{"p_name" : "Smith" }]
+
+Ex: // player
+{
+             "_id" : "1",
+             "p_name" : "Rahul Dravid",
+             "date_of_birth" : ISODate("1976-05-01T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2005-06-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Rajasthan Royals"
+}
+// Teams:
+{
+              "_id" : "100",
+             "t_name" : "Delhi Capitals",
+             "owner" : "ACC Group",
+             "budget" : 800,
+             "overseas_players" : [{"p_name" : "Shane Watson"},{"p_name" : "Rabada"},{"p_name" : "David Warner"}]
+}
+
+// scores
+{
+             "p_name" : "Hardik Pandya",
+             "skill" : "All Rounder",
+             "total_runs" : "3500",
+              "total_wickets" : null
+}
+		   
+
+---------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+Update and Delete Exercise on our Cricket Data that we created in last step 
+------------------------------------------------------------------------------
+
+//  Update all players total_runs who are batsman to 1000 runs
+// Update all players total_wickets who are bowlers to 1000 wickets
+// update all players yoyo test passed status to failed 
+// add a new field named "category" to the Players collection with a default value of Outstanding
+// add a new field named "homeGround" to the Teams collection with the default value null
+// Update HomeGround field of Teams collection
+// for Delhi Capitals --> Delhi
+// for Mumbai Indians --> Mumbai
+// for Rajasthan Royals --> Rajasthan
+
+// Add a new field "no_of_centuries"  with a default value of 5 to all batsman
+// Add a new field "no_of_hatricks"  with a default value of 2 to all bowler
+// delete all players that belong to 'Delhi capitals'
+// delete players that were born before '01-12-1980'
+// delete any one player that belong to 'Mumbai Indians'
+// just adds value 1 to the budget
+// increase all the teams budget by 60
+
+
+
+----------------------------
+Solutions:
+----------------------------
+db.createCollection("Players");
+
+// Players Insert 
+db.Players.insertOne(
+            {
+              "_id" : "1",
+             "p_name" : "Rahul Dravid",
+             "date_of_birth" : ISODate("1976-05-01T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2005-06-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Rajasthan Royals"
+           }
+);
+
+
+
+db.Players.insertMany(
+[
+  {
+              "_id" : "2",
+             "p_name" : "Hardik Pandya",
+             "date_of_birth" : ISODate("2013-07-11T00:00:00.000+0000"),
+             "skill" : "All Rounder",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2022-07-01T00:00:00.000+0000")
+                                      , is_passed : "N"},
+             "team_name" : "Mumbai Indians"
+  },
+    {
+              "_id" : "3",
+             "p_name" : "Sachin Tendulkar",
+             "date_of_birth" : ISODate("1975-08-13T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2000-01-11T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Mumbai Indians"
+    },
+      {
+              "_id" : "4",
+             "p_name" : "Rishab Pant",
+             "date_of_birth" : ISODate("2006-02-15T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2022-07-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Delhi Capitals"
+       }
+       ,
+         {
+              "_id" : "5",
+             "p_name" : "Dhoni",
+             "date_of_birth" : ISODate("1989-01-16T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2018-05-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Delhi Capitals"
+           }
+         ,
+           {
+              "_id" : "6",
+             "p_name" : "David Warner",
+             "date_of_birth" : ISODate("1985-05-01T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "Yes",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2022-08-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Delhi Capitals"
+           }
+           ,
+             {
+              "_id" : "7",
+             "p_name" : "Rabada",
+             "date_of_birth" : ISODate("1991-05-01T00:00:00.000+0000"),
+             "skill" : "Bowler",
+             "is_oversea_player" : "Yes",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2021-05-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Delhi Capitals"
+           }
+           ,
+             {
+              "_id" : "8",
+             "p_name" : "Shane Watson",
+             "date_of_birth" : ISODate("1995-05-01T00:00:00.000+0000"),
+             "skill" : "All Rounder",
+             "is_oversea_player" : "Yes",
+             "medical_details" : {   "last_yoyo_date" : ISODate("1999-05-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Mumbai Indians"
+           }
+            ,
+             {
+              "_id" : "9",
+             "p_name" : "Bumrah",
+             "date_of_birth" : ISODate("1995-05-01T00:00:00.000+0000"),
+             "skill" : "Bowler",
+             "is_oversea_player" : "No",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2021-11-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Mumbai Indians"
+           },
+             {
+              "_id" : "10",
+             "p_name" : "Root",
+             "date_of_birth" : ISODate("1996-03-01T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "Yes",
+             "medical_details" : {   "last_yoyo_date" : ISODate("2021-11-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Mumbai Indians"
+           }
+             ,
+                         
+             {
+              "_id" : "11",
+             "p_name" : "Gayle",
+             "date_of_birth" : ISODate("1978-08-01T00:00:00.000+0000"),
+             "skill" : "Batsman",
+             "is_oversea_player" : "Yes",
+             "medical_details" : {   "last_yoyo_date" : ISODate("1996-11-01T00:00:00.000+0000")
+                                      , is_passed : "Y"},
+             "team_name" : "Delhi Capitals"
+           }
+             ,           
+             {
+              "_id" : "12",
+             "p_name" : "Bolt",
+             "date_of_birth" : ISODate("2001-05-01T00:00:00.000+0000"),
+             "skill" : "Bowler",
+             "is_oversea_player" : "Yes",
+             "medical_details" : { "last_yoyo_date" : ISODate("2022-06-01T00:00:00.000+0000")
+                                   , is_passed : "Y"},
+             "team_name" : "Rajasthan Royals"
+           }           
+             
+             
+]
+);
+
+// Teams--> t_name,owner,budget, overseas_players(array which will contain overseas player)
+
+db.Teams.insertMany(
+[
+{
+              "_id" : "100",
+             "t_name" : "Delhi Capitals",
+             "owner" : "ACC Group",
+             "budget" : 800,
+             "overseas_players" : [{"p_name" : "Shane Watson"},{"p_name" : "Rabada"},{"p_name" : "David Warner"}]
+},
+{
+              "_id" : "200",
+             "t_name" : "Mumbai Indians",
+             "owner" : "Ambani",
+             "budget" : 1000,
+             "overseas_players" : [{"p_name" : "Gayle"}]
+},
+{
+              "_id" : "300",
+             "t_name" : "Rajasthan Royals",
+             "owner" : "MIT Group",
+             "budget" : 900,
+             "overseas_players" : [{"p_name" : "Bolt"},{"p_name" : "Root"}]
+}
+]
+);
+
+// Scores --> p_name, skill, total_runs(if batting), total_wickets(if bowlers)
+    
+db.Scores.insertMany(
+[
+{
+             "p_name" : "Hardik Pandya",
+             "skill" : "All Rounder",
+             "total_runs" : "3500",
+              "total_wickets" : null
+},
+{            
+            "p_name" : "Sachin Tendulkar",
+            "skill" : "Batsman",
+             "total_runs" : "4000",
+
+    
+             },
+{            
+            "p_name" : "Rishab Pant",
+            "skill" : "Batsman",
+             "total_runs" : "2000",
+    
+             },
+
+
+{            
+            "p_name" : "Dhoni",
+            "skill" : "Batsman",
+             "total_runs" : "18000",
+    
+             },
+
+{            
+            "p_name" : "David Warner",
+            "skill" : "Batsman",
+             "total_runs" : "15000"
+    
+             },
+
+{
+             
+             "p_name" : "Rabada",
+              "skill" : "Bowler",
+             "total_wickets" : "120",
+             
+},
+{
+             
+             "p_name" : "Shane Watson",
+              "skill" : "All Rounder",
+             "total_wickets" : "120",
+              "total_runs" : "13000"
+             
+},
+{
+             
+             "p_name" : "Bumrah",
+             "skill" : "Bowler",
+             "total_wickets" : "150",
+
+},
+{
+             
+             "p_name" : "Root",
+             "skill" : "Batsman",
+             "total_runs" : "15150",
+
+},
+{
+             
+             "p_name" : "Gayle",
+             "skill" : "Batsman",
+             "total_runs" : "14150",
+
+},
+{
+             
+             "p_name" : "Bolt",
+             "skill" : "Bowler",
+             "total_wickets" : "30",
+
+},
+{
+             
+             "p_name" : "Rahul Dravid",
+             "skill" : "Batsman",
+             "total_runs" : "19150",
+
+}
+
+
+]
+);
+

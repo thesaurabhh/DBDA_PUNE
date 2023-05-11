@@ -1,0 +1,138 @@
+Today's Agenda
+------------------
+Database Modelling --> what is the need for it , process of data modelling
+Database File storage
+ER diagrams 
+
+Normalisation 
+Windowing functions 
+
+-----------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Normalisation : is a part of data modelling process that helps remove redundancy
+-------------------------------------------------------------------------------
+
+Remember this by : Key , Only key and Nothing but the key 
+
+1) 1st normal form : Primary Key , data in all columns should be atomic in nature 
+2) 2nd normal form : All non key columns should be entirely dependent on the PK
+					 ( Partial key dependency removal)	
+3) 3rd normal form : A non key should not be dependent another non key column
+                     ( Transitive dependency removal)
+
+
+----------------------------------------
+-------------------------------------------
+Windowing Functions 
+------------------------------------------
+
+analytic_function([ arguments ]) OVER ([ query_partition_clause ] [ order_by_clause [ windowing_clause ] ])
+
+
+RANGE BETWEEN start_point AND end_point
+ROWS BETWEEN start_point AND end_point
+GROUPS BETWEEN start_point AND end_point (21c onward)
+
+The default action is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW.
+
+When using ROWS BETWEEN, you are indicating a specific number of rows relative to the current row, either directly, or via an expression. Assuming you don't cross a partition boundary, that number of rows is fixed. In contrast, when you use RANGE BETWEEN you are referring to a range of values in a specific column relative to the value in the current row. As a result, Oracle doesn't know how many rows are included in the range until the ordered set is created. GROUPS BETWEEN treats all rows with the same value as a group, and the start and end points refer to the group rather than the row.
+
+Possible values for "start_point" and "end_point" are:
+
+UNBOUNDED PRECEDING : The window starts at the first row of the partition, or the whole result set if no partitioning clause is used. Only available for start points.
+UNBOUNDED FOLLOWING : The window ends at the last row of the partition, or the whole result set if no partitioning clause is used. Only available for end points.
+CURRENT ROW : The window starts or ends at the current row. Can be used as start or end point.
+value_expr PRECEDING : A physical or logical offset before the current row using a constant or expression that evaluates to a positive numerical value. When used with RANGE, it can also be an interval literal if the order_by_clause uses a DATE column.
+value_expr FOLLOWING : As above, but an offset after the current row.
+
+-----
+DEMO
+-----
+create table student 
+(
+name varchar2(100),
+rollno	number,
+subject	number,
+marks number
+);
+
+insert into student(name,rollno,subject,marks) values ('gaurav',1,10,6);
+insert into student(name,rollno,subject,marks) values ('gaurav',1,20,6);
+insert into student(name,rollno,subject,marks) values ('gaurav',1,30,6);
+insert into student(name,rollno,subject,marks) values ('gaurav',1,40,3);
+insert into student(name,rollno,subject,marks) values ('gaurav',1,40,6);
+
+insert into student(name,rollno,subject,marks) values ('Rahul',2,10,9);
+insert into student(name,rollno,subject,marks) values ('Rahul',2,20,9);
+insert into student(name,rollno,subject,marks) values ('Rahul',2,30,9);
+insert into student(name,rollno,subject,marks) values ('Rahul',2,40,9);
+
+
+insert into student(name,rollno,subject,marks) values ('Renuka',3,10,5);
+insert into student(name,rollno,subject,marks) values ('Renuka',3,20,5);
+insert into student(name,rollno,subject,marks) values ('Renuka',3,30,5);
+insert into student(name,rollno,subject,marks) values ('Renuka',3,40,0);
+
+select * from student;
+
+select rollno,name,sum(marks) aggregate_sum from student group by rollno,name;
+
+--analytic_function([ arguments ]) OVER ([ query_partition_clause ] [ order_by_clause [ windowing_clause ] ])
+select rollno,name,subject,marks, sum(marks)
+over (partition by rollno order by subject desc,marks desc ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) 
+running_sum 
+from student 
+order by rollno,subject desc,marks desc;
+
+select rollno,name, 
+sum(marks) over (partition by rollno order by subject desc,marks desc ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) running_sum,
+count(marks) over (partition by rollno order by subject desc,marks desc ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) running_count ,
+avg(marks) over (partition by rollno order by subject desc,marks desc ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ) running_avg
+from student ;
+
+
+select rollno,name,aggregate_sum,rank() over ( order by AGGREGATE_SUM desc ) ranks
+from
+(
+    select rollno,name,sum(marks) aggregate_sum from student group by rollno,name
+);
+
+select rollno,name,marks,
+row_number() over ( order by marks desc ) rn ,
+dense_rank() over ( order by marks desc ) dense_ranks,
+rank() over ( order by marks desc ) ranks
+from student
+order by marks desc
+;
+
+select * from  student order by marks desc;
+
+
+
+-- get me rowids of all the non duplicate rows 
+select rowid
+from 
+(
+    select a.*,rowid,
+    row_number() over ( partition by marks order by marks desc ) rn 
+    from  student a
+)
+where rn= 1;
+
+select * from student;
+
+-- delete duplicates from the table 
+delete from student where rowid 
+not in 
+(
+    select rowid
+    from 
+    (
+        select a.*,rowid,
+        row_number() over ( partition by marks order by marks desc ) rn 
+        from  student a
+    )
+    where rn= 1
+)

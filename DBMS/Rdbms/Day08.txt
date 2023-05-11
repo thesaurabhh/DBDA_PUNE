@@ -1,0 +1,563 @@
+Today's Agenda:
+-----------------
+what Order by is ? What is the need for it ?
+Demo 
+Hand on session 
+
+----------------
+select 
+from 
+where
+group by 
+having
+order by -- data that is projected is ordered using this clause
+
+------------------------------------------------
+Consider a table with single column for order by 
+------------------------------------------------
+table1
+col1
+1
+2
+3
+4
+null
+
+select col1 from table1 ;
+col1     col1     col1
+1        2        null
+2        1        4
+3        3        3
+4        4        2
+null              1
+
+order by <expression> asc/desc nulls first/nulls last
+ex : order by col1 asc nulls last  
+	 order by col1 desc nulls first 
+	 order by col1 [asc nulls last] // default 
+	 order by col1 desc [nulls first] // default 
+
+
+------------------------
+Sql creates for above example 
+------------------------
+create table table1
+(
+col1 number
+);
+
+insert into table1(col1) values (1);
+insert into table1(col1) values (null);
+insert into table1(col1) values (3);
+insert into table1(col1) values (2);
+insert into table1(col1) values (4);
+
+
+select * from table1;
+-- default (asc nulls last)
+select * from table1 order by col1;
+select * from table1 order by col1 asc ;
+select * from table1 order by col1 asc nulls last;
+
+-- default with desc is nulls first 
+select * from table1 order by col1 desc;
+select * from table1 order by col1 desc nulls first;
+select * from table1 order by col1 desc nulls last;
+
+
+----------------------------------------------------------------------------------
+Consider a table with two column for order by [ Sql creates]
+----------------------------------------------------
+drop table table1;
+create table table1
+(
+col1 number,
+col2 number
+);
+
+insert into table1(col1,col2) values (1,10);
+insert into table1(col1,col2) values (1,20);
+insert into table1(col1,col2) values (1,30);
+insert into table1(col1,col2) values (null,10);
+insert into table1(col1,col2) values (null,30);
+insert into table1(col1,col2) values (null,20);
+insert into table1(col1,col2) values (3,30);
+insert into table1(col1,col2) values (3,20);
+insert into table1(col1,col2) values (3,10);
+
+
+select * from table1;
+-- default (asc nulls last)
+select * from table1 order by col1;
+select * from table1 order by col1 asc ;
+select * from table1 order by col1 asc nulls last;
+
+-- default with desc is nulls first 
+select * from table1 order by col1 desc;
+select * from table1 order by col1 desc nulls first;
+select * from table1 order by col1 desc nulls last;
+
+-- default (asc nulls last)
+select * from table1 order by col1,col2;
+select * from table1 order by col1 asc,col2 asc ;
+select * from table1 order by col1 asc nulls last , col2 nulls last;
+
+select col2,col1 from table1 order by col2,col1;
+select col2,col1 from table1 order by col2 asc,col1 asc ;
+select col2,col1 from table1 order by col2 asc nulls last , col1 nulls last;
+
+
+-- default with desc is nulls first 
+select * from table1 order by col1 desc,col2 desc;
+select * from table1 order by col1 desc nulls first,col2 desc nulls first;
+
+-- any permutation is possible 
+select * from table1 order by col1 desc nulls last ,col2 asc;
+
+-------------------
+Exercises
+-------------------
+/* name of the members ordered on their names ascending */
+/* list the book_name and issuance_date , date_of_expected_return 
+Such that the books that are to be returned at the earliest are seen at the top */
+/*  list all the members such that the oldest member (the very first member to my LMS) of my LMS appears at the top
+*/ 
+
+
+-----------------------------
+-- Subqueries illustration 
+-----------------------------
+from ( select ---------------------------------------------------------- ) -- inline view 
+
+-- where tab1.col1 = (select ----------------------------------------------------------)
+
+
+------------------------------
+Corelated Suquery DEMO 
+------------------------------
+drop table table1;
+drop table table2;
+create table table1 ( col1 number);
+create table table2 ( col2 number);
+
+insert into table1(col1) values(1);
+insert into table1(col1) values(2);
+insert into table1(col1) values(3);
+insert into table1(col1) values(4);
+insert into table1(col1) values(5);
+
+
+insert into table2(col2) values(1);
+insert into table2(col2) values(2);
+
+
+
+select * from table1 ;
+select * from table2 ;
+
+
+select table1.* from table1 where exists(select * from table2 where table2.col2 = table1.col1 );
+select table1.* from table1 where table1.col1 in (select table2.col2 from table2 where table2.col2 = table1.col1  );
+
+select table1.* from table1 where not exists(select * from table2 where table2.col2 = table1.col1 );
+select table1.* from table1 where table1.col1 not in (select table2.col2 from table2 where table2.col2 = table1.col1  );
+
+----------------------------------------
+on our sample data set 
+----------------------------------------
+
+-- hardcode
+select * from lms_members where upper(city) in ('PUNE','MUMBAI');
+select * from lms_members where upper(city) in (select distinct  city from lms_members where city in ('PUNE','MUMBAI'));
+
+
+-- subquery example 
+--details of the books issuances such the category is JAVA/FUNDAMENTALS 
+--and PUBLISH_DATE is greater than to_date('01-01-2005','dd-mm-yyyy')
+
+select * from lms_book_issue
+where book_code
+in
+(     select  BOOK_code 
+        from lms_book_details
+        where (CATEGORY = 'JAVA' or CATEGORY = 'FUNDAMENTALS') 
+        and PUBLISH_DATE > to_date('01-01-2005','dd-mm-yyyy')
+);
+
+
+---------------------------------------
+--> corelated subqueries 
+----------------------------------------
+
+--  name of the members and the city such that they have atleast one vendor from their city 
+-- hardcode
+select member_name , city from lms_members mem where upper(city) in ('TRIVANDRUM','DELHI','CHENNAI','US','MUMBAI');
+
+-- corelated subqueries 
+select member_name , city from lms_members mem where upper(city) in (select distinct upper(address) from lms_suppliers_details sup
+                                                                     where  upper(sup.address) = upper(mem.city) );
+-- corelated subqueries ( or using exists) 
+select member_name , city from lms_members mem where 
+exists (select * from lms_suppliers_details sdet where upper(sdet.address) = upper(mem.city) );
+
+-- join example 
+select mem.member_name , mem.city 
+from lms_members mem  inner join (select distinct address from lms_suppliers_details) sdet on ( upper(sdet.address) = upper(mem.city) );
+
+-- book_code and name of the books that have been issued 
+
+-- hardcode
+select distinct book_code,book_title from lms_book_details bdet where book_code in ('BL000005','BL000002','BL000007','BL000001');
+
+-- corelated subquery using exists
+select distinct book_code,book_title from lms_book_details bdet where 
+exists  (select * from lms_book_issue iss where iss.book_code = bdet.book_code);
+
+-- using join 
+select distinct bdet.book_code,book_title from lms_book_details bdet inner join lms_book_issue iss on ( bdet.book_code = iss.book_code) ;
+
+
+---------------
+Exercises:
+---------------
+/*
+ details of the books whose supplier belong to delhi /mumbai / chennai 
+*/
+
+/*
+ name of the member whose  has issued a book , that same book supplier belong to the same city as that of the member
+*/
+
+/*
+book_code and name of the book that have been issued 
+*/
+
+/* book issue details  of the member who belongs to Pune/mumbai/chennai  */
+
+/* members who have never issued a book */
+
+-----------------------------------------
+-----------------------------------------
+Today's Agenda
+------------------
+PLSQL --> Views / Triggers / Functions / Procedures 
+
+-----------------------------------------------------------
+-------------------------------------------------------------------
+views -- schema objects/ named query / definition is saved in the database / on invocation query is executed each time  
+-------------------------------------------------------------------
+
+
+/* name of the book which has been issued more than 4 times and has more than 0 suppliers (Note: Java how to program has 2 book codes because of different published date) */
+create view my_query as 
+select lms_book_issue.BOOK_CODE,lms_book_details.BOOK_TITLE, count(*) cnt  from
+lms_book_details INNER JOIN  lms_book_issue on (lms_book_issue.BOOK_CODE = lms_book_details.BOOK_CODE)
+where lms_book_details.supplier_id is not null 
+group by lms_book_issue.BOOK_CODE,lms_book_details.BOOK_TITLE
+having count(book_issue_no) > 4 
+
+select * from my_query;
+select * from all_objects where object_name = 'MY_QUERY';
+select * from all_views where view_name = 'MY_QUERY';
+
+------------------
+--- exercise :
+------------------
+-- create a view named "lms_issued_members" which has member_id , name of the member , book_code , date_returned 
+
+ ------------------
+--- exercise :
+------------------
+-- create a view named "lms_issued_members" which has member_id , name of the member , book_code , date_returned 
+drop view lms_issued_members;
+
+CREATE VIEW lms_issued_members AS
+
+SELECT lm.member_id, lm.member_name, book_code, date_returned
+FROM lms_book_issue INNER JOIN lms_members lm on lm.member_id = lms_book_issue.member_id;
+
+select * from lms_issued_members;
+
+insert into lms_issued_members(member_id,member_name,book_code,date_returned) values ('LM099','PARINEETA','BL000001',to_date('01-05-2012','DD-MM-YYYY'))
+
+----------------------------------------
+PLSQL -- > Programming language extension to SQL in Oracle(Propretiery langauge to Oracle)
+
+SQL - declarative language
+
+-- anonymous block 
+declare 
+ -- declaration section 
+begin
+ -- executable section 
+
+exception
+ -- exception section  
+end
+
+create function <function_name>(parameter_list) return <datatype>  -- stored function 
+as 
+ -- declaration section 
+begin
+ -- executable section 
+
+return <value of that datatype>
+exception
+ -- exception section  
+end
+
+-- invoke a function
+begin
+  function_name(parameter_list_values)
+end;
+
+-- select upper('Gaurav') from dual where dummy = upper('X') ;
+
+create procedure <procedure_name>(parameter_list) -- stored procedure
+as
+ -- declaration section 
+begin
+ -- executable section 
+exception
+ -- exception section  
+end
+
+-- invoke a procedure
+begin
+  procedure_name(parameter_list_values)
+end;
+
+
+-------------
+--- examples
+-------------
+
+
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello World!');
+END;
+
+-- anonymous block
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello World!');
+END;
+
+-- stored procedure 
+create procedure my_first_proc as 
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello World!');
+END;
+
+begin 
+    my_first_proc; 
+end;
+
+
+-- stored procedure that accepts parameter
+drop procedure my_second_proc ;
+create procedure my_second_proc(whom_to_wish varchar2 , day_no number)  as 
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello ' || whom_to_wish ||' Welcome to Day' || day_no || ' of DBMS course');
+END;
+
+begin
+    my_second_proc('Students',7); 
+end;
+
+-- stored function 
+drop function my_first_func ;
+create function my_first_func return number as 
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello World!');
+   return 1;
+END;
+
+declare
+    my_var number; -- declaring the variable 
+begin
+    my_var := my_first_func; 
+    DBMS_OUTPUT.put_line ( 'The returned value from the function was ' || my_var);
+end;
+
+-- 
+-- stored function that accepts parameter
+drop function my_second_func ;
+create function my_second_func(whom_to_wish varchar2 , day_no number) return number as 
+BEGIN
+   DBMS_OUTPUT.put_line ('Hello ' || whom_to_wish ||' Welcome to Day' || day_no || ' of DBMS course');
+   return 1;
+END;
+
+
+declare
+    my_var number; -- declaring the variable 
+begin
+    my_var := my_second_func('Students',7); 
+    DBMS_OUTPUT.put_line ( 'The returned value from the function was ' || my_var);
+end;
+
+
+-- stored function that accepts parameter and returns a processed string
+drop function my_third_func ;
+create function my_third_func(whom_to_wish varchar2 , day_no number) return varchar2 as 
+BEGIN
+   return 'Hello ' || whom_to_wish ||' Welcome to Day' || day_no || ' of DBMS course' ;
+END;
+
+
+declare
+    my_var varchar2(100); -- declaring the variable 
+begin
+    my_var := my_third_func('Students',7); 
+    DBMS_OUTPUT.put_line ( my_var);
+end;
+
+
+--------------------------------
+Exercise on plsql blocks
+--------------------------------
+/* create a  unnamed block that declares two variables  x , y and prints their sum */
+/* create a  function f_add(x number,y number) that takes two values  x , y  and returns their sum */
+/* create a procedure p_add(x number,y number) that takes two values  x , y  and prints their sum */
+   
+---------------------------------------------------------
+Assignment 
+----------------------------------------------------------
+/* create a  unnamed block that declares two variables  x , y and prints their substraction */
+/* create a  function f_sub(x number,y number) that takes two values  x , y  and returns their substraction */
+/* create a procedure p_sub(x number,y number) that takes two values  x , y  and prints their substraction */
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+/* create a  unnamed block that declares two variables  x := "Hello" , y := "your_name" and prints their concatenated string of x and y*/
+/* create a  function f_print(x varchar2,y varchar2) that takes two values  x , y  and returns their concatenated string of x and y */
+/* create a procedure p_print(x varchar2,y varchar2) that takes two values  x , y  and prints their concatenated string of x and y */
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+---- Triggers ( named blocks that are invoked automatically on a given action to the table ( insert/update/delete)
+--------------------------------------------------------------------------------
+my_table 
+
+my_first_insert_trigger ---> this should get invoked whenever an insert happens to my_table
+my_first_update_trigger---> this should get invoked whenever an update happens to my_table
+my_first_delete_trigger ---> this should get invoked whenever an delete happens to my_table
+my_second_update_trigger --> this should get invoked whenever an update happens to my_table but after the my_first_update_trigger
+
+drop table my_table ;
+create table my_table ( a number);
+
+-- Insert trigger 
+CREATE OR REPLACE TRIGGER my_first_insert_trigger
+    AFTER INSERT ON my_table FOR EACH ROW
+declare
+begin
+ dbms_output.put_line('my_first_insert_trigger was invoked' );
+end;
+
+insert into my_table(a) values(10);
+SELECT * FROM my_table ;
+
+-- Update trigger 
+CREATE OR REPLACE TRIGGER my_first_Update_trigger
+    AFTER Update ON my_table FOR EACH ROW
+declare
+begin
+ dbms_output.put_line('my_first_Update_trigger was invoked' );
+end;
+
+update my_table set a = 100 where a = 10 ;
+
+insert into my_table(a) values(100);
+update my_table set a = 100 ;
+
+-- Delete trigger 
+CREATE OR REPLACE TRIGGER my_first_delete_trigger
+    AFTER DELETE ON my_table FOR EACH ROW
+declare
+begin
+ dbms_output.put_line('my_first_delete_trigger was invoked' );
+end;
+
+delete from my_table where a = 100;
+
+
+CREATE OR REPLACE TRIGGER my_second_update_trigger
+    AFTER UPDATE ON my_table FOR EACH ROW
+    Follows my_first_Update_trigger
+declare
+begin
+ dbms_output.put_line('           my_second_update_trigger was invoked ');
+end;
+
+select * from my_table;
+insert into my_table(a) values(100);
+insert into my_table(a) values(10);
+
+update my_table set a = 100 where a = 10 ;
+update my_table set a = 1000 ;
+
+-- clubbing 
+
+CREATE OR REPLACE TRIGGER my_clubbed_trigger
+    AFTER INSERT OR UPDATE OR DELETE ON my_table FOR EACH ROW
+declare
+begin
+     --dbms_output.put_line('           my_clubbed_trigger was invoked ');
+ 
+    IF UPDATING THEN
+     dbms_output.put_line('           my_clubbed_trigger was invoked FOR UPDATING ');
+    END IF ;
+    
+    IF DELETING THEN
+     dbms_output.put_line('           my_clubbed_trigger was invoked FOR DELETING ');
+    END IF ;
+    
+    IF INSERTING THEN
+     dbms_output.put_line('           my_clubbed_trigger was invoked FOR INSERTING ');
+    END IF ;
+end;
+
+insert into my_table(a) values(10);
+UPDATE MY_TABLE SET A = 999;
+delete from my_table;
+-------------------------------
+
+------------------
+---- Exercise 
+------------------
+A Insert row level trigger on "lms_members" that helps keep track of datetime_of_insert in a new table "lms_member_audit" (member_id,member_name,datetime_of_insert)
+
+ ------------------
+--- exercise :
+------------------
+-- create a view named "lms_issued_members" which has member_id , name of the member , book_code , date_returned 
+
+--------- ************* Assignment on PLSQL *****************--------------
+1)
+create a view named "lms_issued_members" 
+which has member_id , name of the member , book_code , date_returned 
+
+2) 
+create a instead of trigger named "helper_view_insert" which 
+helps inserting into respective base table lms_book_issue and lms_members when following insert is run
+
+insert into lms_issued_members (member_id,member_name,book_code,date_returned) values ('LM001','Akshay1',BL000026,to_date('01-01-2021','dd-mm-yyyy'));
+
+3) Normal trigger on "lms_members" that helps keep track of datetime_of_insert in a new table 
+"lms_member_audit" (member_id,member_name,date_of_insert)
+
+4) create a stored function named "getCountMembers" whenever invoked would return number of members in the LMS system
+
+-- function invocation 
+declare 
+	cnt number;
+begin 
+	cnt := getCountMembers;
+	dbms_output.put_line('The count of members now is ' || cnt );
+end;
+
+
+
+
+

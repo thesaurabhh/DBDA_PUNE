@@ -1,0 +1,23 @@
+-----------------------------------
+Topics:
+-----------------------------------
+01: Setting up Python environment
+02: Package,modules,variables,literals,statement,input,output,functions(Simple,Lambda,HOF)
+03: Conditionals and Looping constructs 
+04: Collections (tuple,list,string,range,set,frozenset,dictionary)
+05: Namespaces
+06: Exception Handling and File Handling
+07: Classes,Objects
+08: Inheritance 
+09 :Regular Expression , Comprehensions
+10: Python Libraries(Numpy,pandas,pandas,Matplotlib,Seaborn,Plotly)
+11 : Connecting Different DB from Python ( MySQL, Oracle , MongoDB )
+12: Virtual environment creation
+
+--------------------
+Assignments to submit:
+--------------------
+collated_exercise_questions.txt (What had been provided in the course so far)
+oops_assignment.txt (includes classesAndObjectsPractice.docx) (20 Questions)
+final_assignment_questions.txt(30 Questions)
+

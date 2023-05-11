@@ -1,0 +1,48 @@
+Oracle  [10 marks]
+----------------
+1) create a table named EMPLOYEES (empno,name,job,hiredate,salary,commission,deptno)
+   with empno as pk and deptno as fk 
+   create table named DEPARTMENTS (deptno,name,location) with deptno as pk [2 marks]
+
+2) Insert 6-7 records to the table [0 marks]
+3) Fire following queries on the table [2 marks each]
+
+a) provide the names of all employees which belong to a department name "Engineering"
+   and whose salary is between 1000 and 10000
+b) provide the count of no of employees in a given dept_no
+c) update the commission of all employees by 60 percent
+d) delete the employees whose commission is less than 1000 
+
+Mongodb [10 Marks]
+----------------
+Load the following supplier.json in the schema and perform the following queries [2 marks each]
+
+/* please use aggregate framework */
+
+a) provide the supplier names of all supplier that belong to Pune/mumbai/bangalore [case insensitive]
+b) provide the suppliers who belong to pune and ratings in greater than three
+c) provide the name of the suppliers who supply tea 
+d) delete all suppliers who belong to Pune [case insensitive]
+e) update all supplier's contact to null value
+
+
+Cassandra [Optional ]
+----------------
+Create a table lms_book_details_by_publication_category 
+with (PUBLICATION,CATEGORY) as partition key and book_code as clustering key 
+and other columns BOOK_TITLE,AUTHOR,PUBLISH_DATE,PRICE,RACK_NUM,DATE_ARRIVAL
+BOOK_EDITIONS is a list of all possible book editions that book can have  [2 marks]
+
+Insert some random 6 records to the table
+write following queries : 
+
+a) add to the existing list book edition number = -9999
+	where publication is 'Tata Mcgraw Hill' and category is 'Java' 
+	for a particular book_code of your choice
+b) select all books where publication is 'Tata Mcgraw Hill' and category is 'Java' 
+c) Add a new column to the table named "my_comments"  of datatype text
+d) Update BOOK_TITLE to "My_hardcoded_string"
+	where publication is 'Tata Mcgraw Hill' and category is 'Java'
+	for a particular book_code of your choice
+	
+

@@ -1,0 +1,89 @@
+--------------------------
+Joins Theory, Why do we need them , What are the types of joins 
+--------------------------------------------------------
+
+Types of joins :
+1) Inner join/ Equi Join / Natural Joins 
+2) Outer join :-> Full outer join , Left Outer Join /Left Join,  Right Outer Join/Right join
+3) Cross Join 
+
+--------------------
+ -- Joins Demo 
+-------------------
+/* name of the member , status of his membership who have issued a book */
+select distinct lms_members.MEMBER_NAME,lms_members.MEMBERSHIP_STATUS 
+from lms_members  inner join  lms_book_issue on(lms_members.member_id = lms_book_issue.member_id );
+
+/* name of the book and its supplier's email,contact number( case1: if it has no supplier dont display that book) */
+select bd.BOOK_TITLE,sd.EMAIL,sd.contact
+from LMS_SUPPLIERS_DETAILS SD inner join LMS_BOOK_DETAILS BD on(sd.supplier_id = bd.supplier_id);
+
+/* name of the book and its supplier's email,contact number( case2: if it has no suppliers  ) */
+select bd.BOOK_TITLE,sd.EMAIL,sd.contact
+from LMS_SUPPLIERS_DETAILS SD right outer join LMS_BOOK_DETAILS BD on(sd.supplier_id = bd.supplier_id)
+where sd.SUPPLIER_ID is null;
+-- or 
+select bd.BOOK_TITLE,sd.EMAIL,sd.contact
+from   LMS_BOOK_DETAILS BD left outer join LMS_SUPPLIERS_DETAILS SD on(sd.supplier_id = bd.supplier_id)
+where sd.SUPPLIER_ID is null;
+-- or
+
+select bd.BOOK_TITLE,null EMAIL,null contact
+from   LMS_BOOK_DETAILS BD
+where bd.SUPPLIER_ID is null;
+
+/* name of the book and its supplier's email,contact number
+( case3: display all the books irrespective of if they have suppliers or not
+  and display all the suppliers irrespective of if they have supplied a book or not ) */
+
+select bd.BOOK_TITLE,sd.EMAIL,sd.contact
+from   LMS_BOOK_DETAILS BD full outer join LMS_SUPPLIERS_DETAILS SD on(sd.supplier_id = bd.supplier_id)  ;
+
+/* display suppliers who did not supply any book (B-A) */
+
+select sd.*
+from LMS_SUPPLIERS_DETAILS SD left outer join LMS_BOOK_DETAILS BD on(sd.supplier_id = bd.supplier_id)
+where bd.book_code is null;
+
+/* 
+I want to mandate all my suppliers to supply all available books in my LMS 
+so I want a query that gives the name of the supplier , contact and book name , book price
+*/  
+
+select sd.supplier_name,sd.contact,bd.book_title,bd.price
+from LMS_SUPPLIERS_DETAILS sd cross join LMS_BOOK_DETAILS bd;
+
+
+-----------------------------------------------------
+Joins Hands on 
+-----------------------------------------------------
+/* name of the book , publication , date of publication along with supplier name and his contact number 
+Note : books that have no suppliers should not be displayed*/
+
+/*name of the book , publication , date of publication along with supplier name and his contact number which may or may not have a supplier*/
+
+
+/* name of the member , status of his membership who have issued a book and never paid a fine  */
+
+/* name of the member , status of his membership who have issued a book and paid atleast fine more than 74 rs*/
+
+
+/* name of the member , status of his membership who have issued a book 
+and paid atleast fine more than 74 rs 
+and the supplier has a gmail account */
+
+/* name of the member who has issued a book which is not placed on any rack*/
+
+/* name of the supplier who has not supplied any book 
+and that supplier lives in PUNE/MUMBAI/DELHI*/
+
+/* Name of the book , edition , publication that have never been issued  */
+
+/* Name of the book , edition , publication that have been issued to members
+who have enrolled after 01-01-1999*/
+
+/* Name of the members who have issued a book later than 01-01-2000*/
+
+/* Name of the members who have issued a book and such that book supplier belongs to PUNE/MUMBAI/DELHI*/
+
+/* Name of the members who have issued a book from the publication "The MIT Press" */

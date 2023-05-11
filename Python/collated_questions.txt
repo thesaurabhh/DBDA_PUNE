@@ -1,0 +1,275 @@
+------------------------------------------------------------------------------------------
+Collated Questions that we have discussed so far and provided for assignments/exercises :
+------------------------------------------------------------------------------------------
+
+-------------------
+Questions based on variable, statements , input and print functions and operators 
+------------------
+
+1) Accept two numbers from the user and print 
+a) addition 
+b) first number squared 2 
+c) first number raised to number second number
+
+2) Accept String from user and output upper case of the input string 
+
+3) Define a variable named "raise_salary_percentage" and get the salary raise 
+percentage from the user, Now apply the raise to an employee
+with harcoded data Name= 'gaurav' existing_salary = 900 INR and 
+print the incremented salary to the console
+
+4) Get the height from the user in cms and display the user height back to console
+in foot/feet and inches
+
+5) Get the no of the dollars from the user apply the conversion of 
+1 dollar = 82 rupees and print the amount to the console in rupees
+
+6) Take the source, destination, fare in INR, discount_rate percentage from the user and display the 
+string ex: "fare from mumbai to pune is 300 INR with has a discount of 5%"
+
+==================
+Exercise Functions: 
+==================
+
+1) 
+"""
+Addition/Squaring/exponenation should be done as part of single function named 
+"my_calculator"
+which takes in type of operation, number1,number2 as input 
+and outputs the answer based on the operation
+"""
+
+2) Create functions for each of the above 6 modules and invoke them 
+==================
+
+=========================================
+# Conditionals and loops Questions:
+=========================================
+
+1) Creating a Fizz buzz game problems:
+
+# """
+# if the number is divisible by 3 print Fizz    
+# if the number is divisible by 5 print Buzz
+# if the number is divisible by 3 and also divisible by 5 print Fizz Buzz
+
+# Testcase : 
+#     21 --> Fizz
+#     50 --> Buzz
+#     15 --> Fizz Buzz
+#     22 --> Invalid Input 
+# """
+
+2) Creating a Fizz buzz game problems Iteratively seeking input from the user :
+# """Create a game for FIZZ BUZ and keeping playing with the user untill the user chooses to skip the game"""
+
+-------------------------
+Exercises 
+-------------------------
+Loops and Conditionals 
+----------------------
+# Solve the following using either while/do while loops
+1) Take a number from the user and print sum from 1 to that number 
+2) Take a number from the user and print all prime numbers from 1 to that number 
+3) Take a number from the user and print all Odd numbers from 1 to that number 
+4) Take a number from the user and print all Even numbers from 1 to that number 
+5) Take a number from the user and print fibonacci sequence till that number
+
+Test cases for Fibonnaci:
+0 --> 0 
+1 --> 0 1 1
+2 --> 0 1 1 2
+3 --> 0 1 1 2 3
+4 --> 0 1 1 2 3
+5 --> 0,1,1,2,3,5
+
+
+---------------------------------------------------------------------------------------------------
+Assignment/Exercises 
+Topics covered : Modules,Functions,Looping,Conditional constructs,Input,Output,Collections :
+---------------------------------------------------------------------------------------------------
+1) Create a program named "my_list_store"
+which support following operations on list named "members" which is provided by the user 
+for ex: ["Pratiksha","Kevin","Sachin","Yuvraj","Sania"] is provided by the user 
+
+Operations supported by our program are :
+  1:  Display number of elements in the members list
+  2:  Add an element to the members collection like 'Sehwag' 
+  3:  Add elements to the members collection like ['David','Bret','Sanju']
+  4:  Remove a member from the collection at a given subscript
+  5:  Remove the last member from the collection 
+  6:  Display third, fourth and fifth element from the collection 
+
+Keep asking the user for the operation in this store untill he chooses to exit from the program
+
+2) Create a program named "my_dict_store" which support following operations on 
+dictionary named "capitals" which would have keys as their country and values as their capitals
+respectively from the user
+for ex: "India" : "New Delhi" ,"USA" : "Washington DC","Nepal": "Kathmandu","Ukraine" : "Kyiv"
+is provided by the user 
+
+Operations supported by our program are :
+    1: Display number of elements in the capitals collection
+    2: Add an element to the capitals collection like --> Afghanistan: Kabul
+    3: Add multiple elements to the capitals collection like -->  Albania:Tirana,Algeria:Algiers,Andorra:Andorra la Vella
+    4: Remove an element from the collection 	
+
+Keep asking the user for the operation in this store untill he chooses to exit from the program
+
+
+3)  Create a program named "my_set_store" which support following operations on two sets
+    provided by user 
+
+for ex: 
+	A = {1,2,3,4,5}
+	B = {18,19,20,21}
+is provided by the user
+
+Operations supported by our program are :
+	1: Union
+	2: Intersection 
+	3: A-B
+	4: B-A
+	5: Take a element from user and Display if that element is a member of set B 
+	6: Display number of elements in the set A
+    7: Display number of elements in the set B
+	8: Add an element taken from the user to the set A
+	9: Add multiple elements taken from the user to the set A
+	10: Remove an element taken from the user from set A
+
+4) Take a number from the user and print fibonacci sequence till that number USING Range function 
+	eg : fibonnaci sequence for 5 is 1,2,3,5 """
+5) create a function named factorial() that takes in a number and displays the factorial of that number 
+6) create a function that  take a number from the user and returns a list of  even numbers from 1 to that number      
+7) create a function that takes in a number from the user and returns a tuple of all Odd numbers from 1 to that number 
+8) create a function that takes in temperature in Celsius and returns temperature in Farenhiet
+9) create a function that takes in date of birth from the user and returns age in days of the user 
+
+
+#??) create a lambda function take a number from the user and print all prime numbers from 1 to that number 
+
+
+------------------------------------------------
+Exercise : Exceptions
+-------------------------------------------------
+Create the following program named "my_exception_store" with the menu below :
+
+Welcome User , What would you like to do today ?
+    1) Create a postive numbered list 
+    Note : raise an exception if the users inserts a negative number OR user creates an empty list 
+    2) Create a negative  numbered list 
+    Note : raise an exception if the users inserts a positive number/Zero OR user creates an empty list
+    3) Create a heterogenous list 
+    Note : raise an exception if the users creates a homogenous list (all elements of same datatype)
+
+    4) Check if the element is present in the list 
+    Take the Input element that you would like to search
+    and which of the above three list that he want to search element from
+    Note : raise an exception if the element is not found in the list
+    with a message "Sorry, Element could not be found"
+        
+    5) Refresh the program to start with blank lists
+    6) Exit
+
+Handle exceptions in the script for all operations 
+and let the user continue till he chooses to exit from the program 
+
+
+-------------------------------------------
+Exercise 01 : Classes and objects -- try creating this in oops world
+-------------------------------------------
+Employee
+  # instance variables 
+   emp_id (Public)
+   emp_salary (Private)
+   mgr_id ( Public)
+
+  # class variable 
+  department_name
+  
+  # instance methods
+  get_emp_salary()-> emp_salary
+  set_emp_salary(rcv_salary)-> emp_salary
+
+  # class method 
+  get_department_name() --> department_name
+  
+  # static method
+  field_expertise() --> just displays some values of expertise which is applicable
+                        for all my employees collectively
+  
+main
+
+1) create an object employee(100,1000,1)  
+2) do the following for the created object
+// direct access using .notation
+empid
+emp_salary
+mgr_id
+3) print the department name 
+4) display the expertise for the employees 
+5) Deleting Attributes and Objects
+
+-------------------------
+Exercise on Inheritance:
+-------------------------
+Create a base class named Employee as follows:
+Employee (
+-- class variables and methods
+	organisation_name, 
+	get_organisation_name(),
+	set_organisation_name(org_name)
+
+-- instance variables and methods()
+emp_id,
+name,
+base_location,
+deployed_location,
+designation,
+salary ,
+get_employee_details() 	
+
+
+Create a subclass of Employee named Manager as follows:
+Manager(
+	
+	-- instance variables and methods()
+	managed_employees[],
+	perform_appraisal_for_an_employee(emp_id,percent_raise),
+	get_manager_details(mgr_id)
+)
+
+Write a main method that does the following:
+create 3 objects of Employee 
+create an object of Manager_class and add the above 3 employee objects created as managed employees 
+display get_manager_details()
+for an employee do perform_appraisal_for_an_employee()
+
+--------------------
+Exercise 
+-------------------
+Lets implement my_calculator() solution in Solution_Day04.py in OOP concepts 
+
+
+----------------------------------------------
+Pandas Exercise 
+----------------------------------------------
+
+Load the lms_members.xlsx file to Python using pandas and perform the following operation:
+
+/* Display name of all the members */
+/* Display name of all the members whose membership_status is Permanent*/
+/* Display Name of the member , City in which he resides and date of membership expiry*/
+/* name of the member whose date_expire is greater than 01-01-2020 */
+/* name of the member who resides in PUNE */
+/* name of the member who resides in Pune and his membership_status is Permanent*/
+/* list all unique cities in the members dataframe*/
+
+
+-----
+For more pratice : https://www.practicepython.org/
+----
+
+
+
+
